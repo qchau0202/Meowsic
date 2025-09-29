@@ -12,16 +12,17 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Meowsic">
         <activity
-            android:name=".HomeActivity"
+            android:name=".MediaPlayer"
             android:exported="false" />
         <activity
-            android:name=".LoginActivity"
+            android:name=".Login"
             android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
