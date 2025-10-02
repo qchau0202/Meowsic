@@ -1,5 +1,6 @@
 package vn.edu.tdtu.lhqc.meowsic.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -14,5 +15,9 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_register);
+
+        findViewById(R.id.register_btn).setOnClickListener(v -> {
+            startActivity(new Intent(RegisterActivity.this, HomeActivity.class));
+        });
     }
 }
