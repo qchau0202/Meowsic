@@ -8,8 +8,8 @@
     android:gravity="center">
 
     <ImageView
-        android:layout_width="300dp"
-        android:layout_height="300dp"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
         android:src="@drawable/login_illustration"
         android:contentDescription="@string/image_description"
         android:scaleType="centerInside"
@@ -33,7 +33,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
+            android:textSize="14sp"
             android:text="@string/email_title"
             android:layout_marginBottom="12dp"
             />
@@ -49,21 +49,21 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textEmailAddress" />
+                android:inputType="textEmailAddress"
+                android:textSize="14sp"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/password_title"
-            android:textSize="16sp"
+            android:textSize="14sp"
             android:layout_marginBottom="12dp"
             />
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/password_placeholder"
-
             app:hintTextColor="@color/primary_grey"
             app:boxStrokeColor="@color/primary_black"
             app:cornerRadius="12dp">
@@ -71,7 +71,8 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPassword" />
+                android:inputType="textPassword"
+                android:textSize="14sp"/>
         </com.google.android.material.textfield.TextInputLayout>
 
     </LinearLayout>
@@ -102,7 +103,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/account_title"
+            android:text="@string/login_account_title"
             android:textColor="@color/primary_black"
             android:layout_marginEnd="12dp"
             />
