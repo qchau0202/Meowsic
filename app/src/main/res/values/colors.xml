@@ -2,8 +2,9 @@
 <resources>
     <color name="primary_black">#1E1E1E</color>
     <color name="secondary_black">#3D3D3D</color>
-    <color name="primary_white">#F1F1F1</color>
+    <color name="primary_white">#FFFFFF</color>
     <color name="primary_grey">#828282</color>
     <color name="primary_pink">#FFAFCC</color>
     <color name="secondary_pink">#FFC8DD</color>
+    <color name="primary_blue">#4285F4</color>
 </resources>
