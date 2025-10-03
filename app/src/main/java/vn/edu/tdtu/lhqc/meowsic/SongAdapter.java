@@ -60,7 +60,6 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
     static class SongViewHolder extends RecyclerView.ViewHolder {
         TextView title, artist;
-
         public SongViewHolder(@NonNull View itemView) {
             super(itemView);
             title = itemView.findViewById(android.R.id.text1);
