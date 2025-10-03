@@ -4,7 +4,10 @@
     <color name="secondary_black">#3D3D3D</color>
     <color name="primary_white">#FFFFFF</color>
     <color name="primary_grey">#828282</color>
+    <color name="secondary_grey">#AFAFAF</color>
     <color name="primary_pink">#FFAFCC</color>
     <color name="secondary_pink">#FFC8DD</color>
+    <color name="primary_pink_ripple">#33FFAFCC</color>
+    <color name="primary_pink_light">#FFF0F5</color>
     <color name="primary_blue">#4285F4</color>
 </resources>

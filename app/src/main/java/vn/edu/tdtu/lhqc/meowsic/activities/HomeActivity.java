@@ -7,7 +7,6 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import vn.edu.tdtu.lhqc.meowsic.R;
 import vn.edu.tdtu.lhqc.meowsic.fragments.fragment_home;
-import vn.edu.tdtu.lhqc.meowsic.fragments.fragment_playlist;
 import vn.edu.tdtu.lhqc.meowsic.fragments.fragment_library;
 import vn.edu.tdtu.lhqc.meowsic.fragments.fragment_profile;
 
@@ -33,8 +32,6 @@ public class HomeActivity extends AppCompatActivity {
                 int itemId = item.getItemId();
                 if (itemId == R.id.nav_home) {
                     selected = new fragment_home();
-                } else if (itemId == R.id.nav_playlist) {
-                    selected = new fragment_playlist();
                 } else if (itemId == R.id.nav_library) {
                     selected = new fragment_library();
                 } else if (itemId == R.id.nav_profile) {

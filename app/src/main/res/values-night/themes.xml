@@ -2,7 +2,6 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.Meowsic" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
         <item name="android:fontFamily">@font/lexend_font</item>
         <item name="android:icon">@drawable/meowsic_black_icon</item>
     </style>
