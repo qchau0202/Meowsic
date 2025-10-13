@@ -1,13 +1,346 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:background="@color/primary_white"
+    android:fillViewport="true">
 
-    <TextView
-        android:id="@+id/tv_home"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Home (Default)"
-        android:textSize="20sp"/>
-</FrameLayout>
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <!-- Header with Title and Menu -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="20dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Browse"
+                android:textColor="@color/primary_black"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_menu"
+                android:contentDescription="Menu"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="4dp" />
+        </LinearLayout>
+
+        <!-- Search Bar Container -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="24dp">
+
+            <!-- Search Input -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/search_bar_background"
+                android:padding="12dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_search"
+                    android:contentDescription="Search"
+                    android:background="@drawable/search_bar_background"
+                    app:tint="@color/primary_grey"
+                    android:layout_marginEnd="12dp" />
+
+                <EditText
+                    android:id="@+id/search_input"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Search..."
+                    android:textColor="@color/primary_black"
+                    android:textColorHint="@color/primary_grey"
+                    android:textSize="16sp"
+                    android:background="@android:color/transparent"
+                    android:inputType="text"
+                    android:imeOptions="actionSearch"
+                    android:maxLines="1" />
+            </LinearLayout>
+
+            <!-- Search Results Dropdown -->
+            <LinearLayout
+                android:id="@+id/search_dropdown"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/search_dropdown_background"
+                android:layout_marginTop="4dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/search_no_results"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="No results found"
+                    android:textColor="@color/primary_grey"
+                    android:textSize="14sp"
+                    android:gravity="center"
+                    android:padding="16dp"
+                    android:visibility="gone" />
+
+                <ListView
+                    android:id="@+id/search_results_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxHeight="300dp"
+                    android:divider="@android:color/transparent"
+                    android:dividerHeight="1dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Category Cards -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="32dp">
+
+            <!-- Get Chill Card -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="140dp"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="bottom"
+                android:background="@drawable/category_card_background_pink"
+                android:padding="16dp"
+                android:layout_marginEnd="12dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Get Chill"
+                    android:background="@color/primary_pink"
+                    android:textColor="@color/primary_white"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Let's Dance Card -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="140dp"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="bottom"
+                android:background="@drawable/category_card_background_blue"
+                android:padding="16dp"
+                android:layout_marginStart="12dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Let's Dance"
+                    android:background="@color/primary_blue"
+                    android:textColor="@color/primary_white"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- New Collection Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="New Collection"
+                android:textColor="@color/primary_black"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Horizontal ScrollView for Collection Items -->
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <!-- Collection Item 1 -->
+                    <LinearLayout
+                        android:layout_width="140dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:background="@drawable/collection_card_background"
+                        android:padding="12dp"
+                        android:layout_marginEnd="12dp">
+
+                        <ImageView
+                            android:layout_width="116dp"
+                            android:layout_height="116dp"
+                            android:src="@drawable/billie_eilish"
+                            android:contentDescription="Album Art"
+                            android:scaleType="centerCrop"
+                            android:layout_marginBottom="8dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Meowsic Hits"
+                            android:textColor="@color/primary_black"
+                            android:background="@color/card_shadow_bg"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:maxLines="2"
+                            android:ellipsize="end" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Various Artists"
+                            android:background="@color/card_shadow_bg"
+                            android:textColor="@color/primary_grey"
+                            android:textSize="12sp"
+                            android:maxLines="1"
+                            android:ellipsize="end" />
+                    </LinearLayout>
+
+                    <!-- Collection Item 2 -->
+                    <LinearLayout
+                        android:layout_width="140dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:background="@drawable/collection_card_background"
+                        android:padding="12dp"
+                        android:layout_marginEnd="12dp">
+
+                        <ImageView
+                            android:layout_width="116dp"
+                            android:layout_height="116dp"
+                            android:src="@drawable/cat_profile"
+                            android:contentDescription="Album Art"
+                            android:scaleType="centerCrop"
+                            android:layout_marginBottom="8dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Cat Vibes"
+                            android:background="@color/card_shadow_bg"
+                            android:textColor="@color/primary_black"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:maxLines="2"
+                            android:ellipsize="end" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Feline Artists"
+                            android:background="@color/card_shadow_bg"
+                            android:textColor="@color/primary_grey"
+                            android:textSize="12sp"
+                            android:maxLines="1"
+                            android:ellipsize="end" />
+                    </LinearLayout>
+
+                    <!-- Collection Item 3 -->
+                    <LinearLayout
+                        android:layout_width="140dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:background="@drawable/collection_card_background"
+                        android:padding="12dp"
+                        android:layout_marginEnd="12dp">
+
+                        <ImageView
+                            android:layout_width="116dp"
+                            android:layout_height="116dp"
+                            android:src="@drawable/login_illustration"
+                            android:contentDescription="Album Art"
+                            android:scaleType="centerCrop"
+                            android:layout_marginBottom="8dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Melody Mix"
+                            android:background="@color/card_shadow_bg"
+                            android:textColor="@color/primary_black"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:maxLines="2"
+                            android:ellipsize="end" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Music Producers"
+                            android:background="@color/card_shadow_bg"
+                            android:textColor="@color/primary_grey"
+                            android:textSize="12sp"
+                            android:maxLines="1"
+                            android:ellipsize="end" />
+                    </LinearLayout>
+
+                    <!-- Collection Item 4 -->
+                    <LinearLayout
+                        android:layout_width="140dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:background="@drawable/collection_card_background"
+                        android:padding="12dp">
+
+                        <ImageView
+                            android:layout_width="116dp"
+                            android:layout_height="116dp"
+                            android:src="@drawable/meowsic_white_icon"
+                            android:contentDescription="Album Art"
+                            android:scaleType="centerCrop"
+                            android:layout_marginBottom="8dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Purr-fect Beats"
+                            android:background="@color/card_shadow_bg"
+                            android:textColor="@color/primary_black"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:maxLines="2"
+                            android:ellipsize="end" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="DJ Meowsic"
+                            android:background="@color/card_shadow_bg"
+                            android:textColor="@color/primary_grey"
+                            android:textSize="12sp"
+                            android:maxLines="1"
+                            android:ellipsize="end" />
+                    </LinearLayout>
+                </LinearLayout>
+            </HorizontalScrollView>
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

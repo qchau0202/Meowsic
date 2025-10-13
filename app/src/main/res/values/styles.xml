@@ -4,4 +4,15 @@
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">50%</item>
     </style>
+
+    <!-- Bottom Navigation Text Styles -->
+    <style name="BottomNavigationTextActive" parent="Widget.Design.BottomNavigationView">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="BottomNavigationTextInactive" parent="Widget.Design.BottomNavigationView">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">normal</item>
+    </style>
 </resources>
