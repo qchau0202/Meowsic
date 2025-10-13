@@ -123,7 +123,7 @@
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:gravity="bottom"
-                android:background="@drawable/category_card_background_pink"
+                android:background="@drawable/card_bg_pink"
                 android:padding="16dp"
                 android:layout_marginEnd="12dp">
 
@@ -144,7 +144,7 @@
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:gravity="bottom"
-                android:background="@drawable/category_card_background_blue"
+                android:background="@drawable/card_bg_blue"
                 android:padding="16dp"
                 android:layout_marginStart="12dp">
 
@@ -190,7 +190,7 @@
                         android:layout_width="140dp"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:background="@drawable/collection_card_background"
+                        android:background="@drawable/card_shadow_bg"
                         android:padding="12dp"
                         android:layout_marginEnd="12dp">
 
@@ -229,7 +229,7 @@
                         android:layout_width="140dp"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:background="@drawable/collection_card_background"
+                        android:background="@drawable/card_shadow_bg"
                         android:padding="12dp"
                         android:layout_marginEnd="12dp">
 
@@ -268,7 +268,7 @@
                         android:layout_width="140dp"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:background="@drawable/collection_card_background"
+                        android:background="@drawable/card_shadow_bg"
                         android:padding="12dp"
                         android:layout_marginEnd="12dp">
 
@@ -307,7 +307,7 @@
                         android:layout_width="140dp"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:background="@drawable/collection_card_background"
+                        android:background="@drawable/card_shadow_bg"
                         android:padding="12dp">
 
                         <ImageView
@@ -329,9 +329,9 @@
                             android:maxLines="2"
                             android:ellipsize="end" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
                             android:text="DJ Meowsic"
                             android:background="@color/card_shadow_bg"
                             android:textColor="@color/primary_grey"
