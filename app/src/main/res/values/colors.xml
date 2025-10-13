@@ -10,4 +10,6 @@
     <color name="primary_pink_ripple">#33FFAFCC</color>
     <color name="primary_pink_light">#FFF0F5</color>
     <color name="primary_blue">#4285F4</color>
+    <color name="divider_color">#F0F0F0</color>
+    <color name="card_shadow_bg">#F5F5F5</color>
 </resources>
