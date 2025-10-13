@@ -3,6 +3,7 @@ package vn.edu.tdtu.lhqc.meowsic;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -12,21 +13,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder> {
-    private List<Song> songList;
+    private List<Song> fullList;
     private List<Song> filteredList;
+    private String currentType = "All";
+
 
     // Constructor
     public SongAdapter(List<Song> songList) {
-        this.songList = songList;
+        this.fullList = new ArrayList<>(songList);
         this.filteredList = new ArrayList<>(songList);
     }
 
     @NonNull
     @Override
     public SongViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Dùng layout có sẵn simple_list_item_2 (hiển thị 2 dòng text)
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(android.R.layout.simple_list_item_2, parent, false);
+                .inflate(R.layout.item_song, parent, false);
         return new SongViewHolder(view);
     }
 
@@ -34,7 +36,8 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     public void onBindViewHolder(@NonNull SongViewHolder holder, int position) {
         Song song = filteredList.get(position);
         holder.title.setText(song.getTitle());
-        holder.artist.setText(song.getArtist());
+        holder.type.setText(song.getType());
+        holder.image.setImageResource(song.getImageRes());
     }
 
     @Override
@@ -42,28 +45,37 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         return filteredList.size();
     }
 
+    public void filterByType(String type) {
+        currentType = type;
+        applyFilters("");
+    }
+
+    public void filterByQuery(String query) {
+        applyFilters(query);
+    }
     // Hàm filter để SearchView gọi
-    public void filter(String query) {
+    private void applyFilters(String query) {
         filteredList.clear();
-        if (query.isEmpty()) {
-            filteredList.addAll(songList);
-        } else {
-            for (Song song : songList) {
-                if (song.getTitle().toLowerCase().contains(query.toLowerCase())
-                        || song.getArtist().toLowerCase().contains(query.toLowerCase())) {
-                    filteredList.add(song);
-                }
+        for (Song song : fullList) {
+            boolean matchType = currentType.equals("All") || song.getType().equalsIgnoreCase(currentType);
+            boolean matchQuery = query.isEmpty() ||
+                    song.getTitle().toLowerCase().contains(query.toLowerCase()) ||
+                    song.getType().toLowerCase().contains(query.toLowerCase());
+            if (matchType && matchQuery) {
+                filteredList.add(song);
             }
         }
         notifyDataSetChanged();
     }
 
     static class SongViewHolder extends RecyclerView.ViewHolder {
-        TextView title, artist;
+        ImageView image;
+        TextView title, type;
         public SongViewHolder(@NonNull View itemView) {
             super(itemView);
-            title = itemView.findViewById(android.R.id.text1);
-            artist = itemView.findViewById(android.R.id.text2);
+            image = itemView.findViewById(R.id.imageItem);
+            title = itemView.findViewById(R.id.textTitle);
+            type = itemView.findViewById(R.id.textType);
         }
     }
 }
