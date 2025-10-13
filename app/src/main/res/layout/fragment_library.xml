@@ -1,86 +1,195 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:background="@color/primary_white"
+    android:fillViewport="true">
 
-    <!-- Top section with Title and Search Icon -->
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <!-- TextView for the title -->
-        <TextView
-            android:id="@+id/textViewInfo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Library"
-            android:textSize="24sp"
-            android:textColor="@android:color/black"
-            android:layout_centerVertical="true"
-            android:layout_alignParentStart="true"/>
-
-        <!-- Search Icon -->
-        <ImageView
-            android:id="@+id/btnSearch"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/ic_search"
-            android:contentDescription="Search"
-            android:layout_centerVertical="true"
-            android:layout_alignParentEnd="true"/>
-
-    </RelativeLayout>
-
-    <!-- Search View -->
-    <androidx.appcompat.widget.SearchView
-        android:id="@+id/searchView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:iconifiedByDefault="false"
-        android:visibility="gone"
-        android:queryHint="Nhập để tìm..."
-        android:background="@drawable/search_bg"
-        android:layout_marginTop="12dp"/>
-
-    <!-- Filter Buttons in a horizontal row -->
     <LinearLayout
-        android:id="@+id/filter_buttons"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="12dp">
+        android:orientation="vertical"
+        android:padding="20dp">
 
-        <Button
-            android:id="@+id/button"
-            android:layout_width="0dp"
+        <!-- Header with Title and Menu -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Playlist"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="20dp">
 
-        <Button
-            android:id="@+id/button2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Artist"/>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Library"
+                android:textColor="@color/primary_black"
+                android:textSize="24sp"
+                android:textStyle="bold" />
 
-        <Button
-            android:id="@+id/button3"
-            android:layout_width="0dp"
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_menu"
+                android:contentDescription="Menu"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="4dp" />
+        </LinearLayout>
+
+        <!-- Search Bar Container -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Album"/>
+            android:orientation="vertical"
+            android:layout_marginBottom="24dp">
+
+            <!-- Search Input -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/search_bar_background"
+                android:padding="12dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_search"
+                    android:contentDescription="Search"
+                    android:background="@drawable/search_bar_background"
+                    app:tint="@color/primary_grey"
+                    android:layout_marginEnd="12dp" />
+
+                <EditText
+                    android:id="@+id/search_input"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Search..."
+                    android:textColor="@color/primary_black"
+                    android:textColorHint="@color/primary_grey"
+                    android:textSize="16sp"
+                    android:background="@drawable/search_bar_background"
+                    android:inputType="text"
+                    android:imeOptions="actionSearch"
+                    android:maxLines="1" />
+
+                <ImageView
+                    android:id="@+id/search_filter"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_filter"
+                    android:contentDescription="Filter"
+                    app:tint="@color/primary_grey"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:padding="4dp" />
+            </LinearLayout>
+
+            <!-- Search Results Dropdown -->
+            <LinearLayout
+                android:id="@+id/search_dropdown"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/search_dropdown_background"
+                android:layout_marginTop="4dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/search_no_results"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="No results found"
+                    android:textColor="@color/primary_grey"
+                    android:textSize="14sp"
+                    android:gravity="center"
+                    android:padding="16dp"
+                    android:visibility="gone" />
+
+                <ListView
+                    android:id="@+id/search_results_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxHeight="400dp"
+                    android:divider="@android:color/transparent"
+                    android:dividerHeight="1dp"
+                    android:scrollbars="vertical" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Filter Buttons -->
+        <LinearLayout
+            android:id="@+id/filter_buttons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="24dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_playlist"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Playlist"
+                android:textColor="@color/primary_white"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:backgroundTint="@color/primary_pink"
+                app:cornerRadius="20dp"
+                android:layout_marginEnd="6dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_artist"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Artist"
+                android:textColor="@color/primary_black"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:backgroundTint="@color/card_shadow_bg"
+                app:cornerRadius="20dp"
+                android:layout_marginStart="3dp"
+                android:layout_marginEnd="3dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_album"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Album"
+                android:textColor="@color/primary_black"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:backgroundTint="@color/card_shadow_bg"
+                android:layout_marginStart="6dp" />
+        </LinearLayout>
+
+        <!-- Content Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="All Items"
+                android:textColor="@color/primary_black"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="16dp" />
+
+            <!-- The list of songs -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewSongs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="true" />
+
+        </LinearLayout>
     </LinearLayout>
-
-    <!-- The list of songs, which will take the remaining vertical space -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewSongs"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="8dp"/>
-
-</LinearLayout>
+</ScrollView>
