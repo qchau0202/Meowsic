@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -32,19 +33,29 @@ public class fragment_library extends Fragment {
         ImageView btnSearch = view.findViewById(R.id.btnSearch);
         SearchView searchView = view.findViewById(R.id.searchView);
         RecyclerView recyclerView = view.findViewById(R.id.recyclerViewSongs);
+        Button btnPlaylist = view.findViewById(R.id.button);
+        Button btnArtist = view.findViewById(R.id.button2);
+        Button btnAlbum = view.findViewById(R.id.button3);
 
         // Fake danh sách bài hát
         List<Song> songs = new ArrayList<>();
-        songs.add(new Song("Nắng Ấm Xa Dần", "Sơn Tùng MTP"));
-        songs.add(new Song("Lạc Trôi", "Sơn Tùng MTP"));
-        songs.add(new Song("Chúng Ta Không Thuộc Về Nhau", "Sơn Tùng MTP"));
-        songs.add(new Song("Em Của Ngày Hôm Qua", "Sơn Tùng MTP"));
-        songs.add(new Song("Chạy Ngay Đi", "Sơn Tùng MTP"));
+        songs.add(new Song("Top Hits 2023", "Playlist", R.drawable.top_hits_2023));
+        songs.add(new Song("Sơn Tùng MTP", "Artist", R.drawable.sontung));
+        songs.add(new Song("Sky Tour", "Album", R.drawable.skytour));
+        songs.add(new Song("Ai", "Album", R.drawable.ai));
+        songs.add(new Song("G-Dragon", "Artist", R.drawable.gdragon));
+        songs.add(new Song("Motivation Mix", "Playlist", R.drawable.motivation_playlist));
+
 
         // Setup RecyclerView
         SongAdapter adapter = new SongAdapter(songs);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
+
+        // Filter buttons
+        btnPlaylist.setOnClickListener(v -> adapter.filterByType("Playlist"));
+        btnArtist.setOnClickListener(v -> adapter.filterByType("Artist"));
+        btnAlbum.setOnClickListener(v -> adapter.filterByType("Album"));
 
         // Bấm icon kính lúp → hiện SearchView full, ẩn tiêu đề
         btnSearch.setOnClickListener(v -> {
@@ -68,13 +79,15 @@ public class fragment_library extends Fragment {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                adapter.filter(query);
+                adapter.filterByQuery(query);
                 return true;
+
+
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                adapter.filter(newText);
+                adapter.filterByQuery(newText);
                 return true;
             }
         });

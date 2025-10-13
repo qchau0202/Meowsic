@@ -1,55 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:padding="16dp">
 
-    <!-- TextView tiêu đề -->
-    <TextView
-        android:id="@+id/textViewInfo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Dashboard"
-        android:textSize="24sp"
-        android:textColor="@android:color/black"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+    <!-- Top section with Title and Search Icon -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <!-- Icon kính lúp -->
-    <ImageView
-        android:id="@+id/btnSearch"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:src="@drawable/ic_search"
-        android:contentDescription="Search"
-        app:layout_constraintTop_toTopOf="@id/textViewInfo"
-        app:layout_constraintBottom_toBottomOf="@id/textViewInfo"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        <!-- TextView for the title -->
+        <TextView
+            android:id="@+id/textViewInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Library"
+            android:textSize="24sp"
+            android:textColor="@android:color/black"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true"/>
 
+        <!-- Search Icon -->
+        <ImageView
+            android:id="@+id/btnSearch"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_search"
+            android:contentDescription="Search"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true"/>
+
+    </RelativeLayout>
+
+    <!-- Search View -->
     <androidx.appcompat.widget.SearchView
         android:id="@+id/searchView"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:iconifiedByDefault="false"
         android:visibility="gone"
         android:queryHint="Nhập để tìm..."
         android:background="@drawable/search_bg"
-        android:layout_marginTop="12dp"
-        app:layout_constraintTop_toBottomOf="@id/textViewInfo"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        android:layout_marginTop="12dp"/>
 
+    <!-- Filter Buttons in a horizontal row -->
+    <LinearLayout
+        android:id="@+id/filter_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="12dp">
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Playlist"/>
+
+        <Button
+            android:id="@+id/button2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Artist"/>
+
+        <Button
+            android:id="@+id/button3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Album"/>
+    </LinearLayout>
+
+    <!-- The list of songs, which will take the remaining vertical space -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewSongs"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/searchView"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        android:layout_weight="1"
+        android:layout_marginTop="8dp"/>
 
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>
