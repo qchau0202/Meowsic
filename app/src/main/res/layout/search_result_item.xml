@@ -47,5 +47,5 @@
         android:layout_height="16dp"
         android:src="@drawable/ic_library"
         android:contentDescription="Play"
-        android:tint="@color/primary_pink" />
+        app:tint="@color/primary_pink" />
 </LinearLayout>
