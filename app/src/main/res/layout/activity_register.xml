@@ -48,9 +48,10 @@
             app:cornerRadius="12dp">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edtRegisterName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPassword"
+                android:inputType="textPersonName"
                 android:textSize="14sp"/>
         </com.google.android.material.textfield.TextInputLayout>
         <TextView
@@ -70,6 +71,7 @@
             app:cornerRadius="12dp">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edtRegisterEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textEmailAddress"
@@ -93,6 +95,7 @@
             app:cornerRadius="12dp">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edtRegisterPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPassword"
@@ -108,7 +111,7 @@
         android:layout_marginBottom="16dp" >
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/register_btn"
+            android:id="@+id/btnRegister"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/register_button_title"
@@ -133,6 +136,7 @@
             android:layout_marginEnd="12dp"
             />
         <TextView
+            android:id="@+id/tvNavigateToLogin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/navigate_to_login"
