@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/primary_white"
+    android:padding="24dp"
+    tools:context=".fragments.fragment_now_playing">
+
+    <!-- Header with Back Button, Title and Menu -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="40dp">
+
+        <!-- Back Button -->
+        <ImageView
+            android:id="@+id/btn_back"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_arrow_right_24px"
+            android:rotation="180"
+            android:contentDescription="Back"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="4dp"
+            app:tint="@color/primary_black" />
+
+        <!-- Title -->
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Now Playing"
+            android:textColor="@color/primary_black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:gravity="center" />
+
+        <!-- Menu Button -->
+        <ImageView
+            android:id="@+id/btn_menu"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_more_vertical_24px"
+            android:contentDescription="Menu"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="4dp"
+            app:tint="@color/primary_black" />
+    </LinearLayout>
+
+    <!-- Album Art Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_marginBottom="40dp">
+
+        <ImageView
+            android:id="@+id/album_art"
+            android:layout_width="280dp"
+            android:layout_height="280dp"
+            android:src="@drawable/billie_eilish"
+            android:scaleType="centerCrop"
+            android:padding="8dp" />
+    </LinearLayout>
+
+    <!-- Song Information -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="18dp"
+        android:gravity="center_vertical">
+
+        <!-- Song Title and Artist Container -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/song_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Meowsic song"
+                android:textColor="@color/primary_black"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_marginBottom="8dp"
+                android:maxLines="2"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/artist_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Meowisc"
+                android:textColor="@color/primary_grey"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:maxLines="1"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+        <!-- Favorite Icon -->
+        <ImageView
+            android:id="@+id/btn_favorite"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_favorite_24px"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="4dp"
+            app:tint="@color/primary_black"
+            android:layout_marginStart="16dp" />
+    </LinearLayout>
+
+    <!-- Progress Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="18dp">
+
+        <!-- Time Labels -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:id="@+id/current_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0:00"
+                android:textColor="@color/primary_black"
+                android:textSize="14sp" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/total_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0:00"
+                android:textColor="@color/primary_black"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <!-- Progress Bar -->
+        <SeekBar
+            android:id="@+id/progress_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:progress="0"
+            android:max="100"
+            android:progressTint="@color/primary_pink"
+            android:thumbTint="@color/primary_pink"
+            android:splitTrack="false"
+            />
+    </LinearLayout>
+
+    <!-- Playback Controls -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <!-- Repeat Button -->
+        <ImageView
+            android:id="@+id/btn_repeat"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/ic_repeat_24px"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="@color/secondary_grey"
+            android:layout_margin="10dp"
+            android:layout_weight="1"/>
+
+        <!-- Previous Button -->
+        <ImageView
+            android:id="@+id/btn_previous"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_skip_previous_24px"
+            android:contentDescription="Previous"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="@color/secondary_black"
+            android:layout_margin="10dp"/>
+
+        <!-- Play/Pause Button -->
+        <ImageView
+            android:id="@+id/btn_play_pause"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:src="@drawable/ic_pause_circle_24px"
+            android:contentDescription="Play/Pause"
+            app:tint="@color/primary_pink"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_margin="10dp"/>
+
+        <!-- Next Button -->
+        <ImageView
+            android:id="@+id/btn_next"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_skip_next_24px"
+            android:contentDescription="Next"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="@color/secondary_black"
+            android:layout_margin="10dp"/>
+
+        <!-- Shuffle Button -->
+        <ImageView
+            android:id="@+id/btn_shuffle"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/ic_shuffle_24px"
+            android:contentDescription="Shuffle"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="@color/secondary_grey"
+            android:layout_margin="10dp"
+            android:layout_weight="1"/>
+    </LinearLayout>
+</LinearLayout>

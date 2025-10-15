@@ -1,23 +1,13 @@
 package vn.edu.tdtu.lhqc.meowsic.fragments;
 
-import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
+import android.view.View;
+import vn.edu.tdtu.lhqc.meowsic.ui.PopupAddMenuHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,16 +30,8 @@ public class fragment_home extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    // Search related views and variables
-    private EditText searchInput;
-    private LinearLayout searchDropdown;
-    private TextView searchNoResults;
-    private ListView searchResultsList;
-    private Handler searchHandler;
-    private Runnable searchRunnable;
-    
-    // Sample search data
-    private List<SearchResult> searchData;
+    // Search fragment
+    private fragment_search searchFragment;
 
     public fragment_home() {
         // Required empty public constructor
@@ -80,9 +62,6 @@ public class fragment_home extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-        
-        // Initialize search data
-        initializeSearchData();
     }
 
     @Override
@@ -91,200 +70,92 @@ public class fragment_home extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         
-        // Initialize search functionality
-        initializeSearchViews(view);
-        setupSearchFunctionality();
+        // Setup search functionality
+        setupSearchFragment();
+        setupAddMenu(view);
         
         return view;
     }
-    
-    private void initializeSearchData() {
-        searchData = new ArrayList<>();
-        searchData.add(new SearchResult("Meowsic Hits", "Various Artists", "album"));
-        searchData.add(new SearchResult("Cat Vibes", "Feline Artists", "album"));
-        searchData.add(new SearchResult("Melody Mix", "Music Producers", "album"));
-        searchData.add(new SearchResult("Purr-fect Beats", "DJ Meowsic", "album"));
-        searchData.add(new SearchResult("Chill Cat", "Ambient Cats", "artist"));
-        searchData.add(new SearchResult("Jazz Meows", "Smooth Jazz Cats", "artist"));
-        searchData.add(new SearchResult("Rock & Roll Cat", "Heavy Metal Cats", "artist"));
-        searchData.add(new SearchResult("Electronic Beats", "Digital Cats", "playlist"));
-        searchData.add(new SearchResult("Classical Meows", "Orchestral Cats", "playlist"));
-        searchData.add(new SearchResult("Pop Cat Hits", "Mainstream Cats", "playlist"));
+
+    private void setupAddMenu(View root) {
+        View add = root.findViewById(R.id.btn_add_home);
+        if (add != null) {
+            add.setOnClickListener(v -> PopupAddMenuHelper.show(requireContext(), v, new PopupAddMenuHelper.Listener() {
+                @Override
+                public void onCreatePlaylistSelected() {
+                    // TODO: Navigate to create playlist screen or show dialog
+                }
+
+                @Override
+                public void onImportMusicSelected() {
+                    // TODO: Launch file picker for mp3/mp4 import
+                }
+            }));
+        }
     }
     
-    private void initializeSearchViews(View view) {
-        searchInput = view.findViewById(R.id.search_input);
-        searchDropdown = view.findViewById(R.id.search_dropdown);
-        searchNoResults = view.findViewById(R.id.search_no_results);
-        searchResultsList = view.findViewById(R.id.search_results_list);
+    private void setupSearchFragment() {
+        // Create search fragment
+        searchFragment = new fragment_search();
         
-        searchHandler = new Handler(Looper.getMainLooper());
-    }
-    
-    private void setupSearchFunctionality() {
-        searchInput.addTextChangedListener(new TextWatcher() {
+        // Set callback for search results
+        searchFragment.setSearchResultCallback(new fragment_search.SearchResultCallback() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
+            public void onSearchResultSelected(fragment_search.SearchResult result) {
+                // Handle search result selection in home
+                handleHomeSearchResult(result);
+            }
+            
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
+            public void onSearchQueryChanged(String query) {
+                // Handle query change if needed
+            }
+            
             @Override
-            public void afterTextChanged(Editable s) {
-                String query = s.toString().trim();
-                
-                // Cancel previous search if exists
-                if (searchRunnable != null) {
-                    searchHandler.removeCallbacks(searchRunnable);
-                }
-                
-                if (query.isEmpty()) {
-                    hideSearchDropdown();
-                } else {
-                    // Delay search to avoid too frequent calls
-                    searchRunnable = () -> performSearch(query);
-                    searchHandler.postDelayed(searchRunnable, 500);
-                }
+            public List<fragment_search.SearchResult> getSearchableData() {
+                // Return the existing home data as searchable results
+                return getHomeSearchableData();
             }
         });
+        
+        // Replace the search container in home layout with the search fragment
+        getChildFragmentManager().beginTransaction()
+            .replace(R.id.search_container, searchFragment)
+            .commit();
     }
     
-    private void performSearch(String query) {
-        List<SearchResult> results = new ArrayList<>();
+    private List<fragment_search.SearchResult> getHomeSearchableData() {
+        // Convert existing home data to searchable format
+        List<fragment_search.SearchResult> searchableData = new ArrayList<>();
         
-        // Simple search logic - filter results based on query
-        for (SearchResult item : searchData) {
-            if (item.getTitle().toLowerCase().contains(query.toLowerCase()) ||
-                item.getSubtitle().toLowerCase().contains(query.toLowerCase())) {
-                results.add(item);
-            }
-        }
+        // Add the collection items from home
+        searchableData.add(new fragment_search.SearchResult("Meowsic Hits", "Various Artists", "album"));
+        searchableData.add(new fragment_search.SearchResult("Cat Vibes", "Feline Artists", "album"));
+        searchableData.add(new fragment_search.SearchResult("Melody Mix", "Music Producers", "album"));
+        searchableData.add(new fragment_search.SearchResult("Purr-fect Beats", "DJ Meowsic", "album"));
         
-        if (results.isEmpty()) {
-            showNoResults();
-        } else {
-            showSearchResults(results);
-        }
+        // Add category cards
+        searchableData.add(new fragment_search.SearchResult("Top 100 cat songs", "Various Artists", "playlist"));
+        searchableData.add(new fragment_search.SearchResult("Meowsic newest album", "Various Artists", "album"));
+        
+        return searchableData;
     }
     
-    private void showSearchResults(List<SearchResult> results) {
-        searchDropdown.setVisibility(View.VISIBLE);
-        searchResultsList.setVisibility(View.VISIBLE);
-        searchNoResults.setVisibility(View.GONE);
-        
-        // Create custom adapter for search results
-        SearchResultAdapter adapter = new SearchResultAdapter(getContext(), results);
-        searchResultsList.setAdapter(adapter);
-        
-        // Handle item clicks
-        searchResultsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                SearchResult selectedResult = results.get(position);
-                // Handle search result selection
-                onSearchResultSelected(selectedResult);
-            }
-        });
-    }
-    
-    private void showNoResults() {
-        searchDropdown.setVisibility(View.VISIBLE);
-        searchResultsList.setVisibility(View.GONE);
-        searchNoResults.setVisibility(View.VISIBLE);
-    }
-    
-    private void hideSearchDropdown() {
-        searchDropdown.setVisibility(View.GONE);
-    }
-    
-    private void onSearchResultSelected(SearchResult result) {
-        // Hide search dropdown
-        hideSearchDropdown();
-        
-        // Clear search input
-        searchInput.setText("");
-        
-        // Here you can navigate to the selected result or perform any action
-        // For now, we'll just show a simple action
-        // You can implement navigation logic here
-    }
-    
-    // Simple data class for search results
-    public static class SearchResult {
-        private String title;
-        private String subtitle;
-        private String type;
-        
-        public SearchResult(String title, String subtitle, String type) {
-            this.title = title;
-            this.subtitle = subtitle;
-            this.type = type;
-        }
-        
-        public String getTitle() { return title; }
-        public String getSubtitle() { return subtitle; }
-        public String getType() { return type; }
-    }
-    
-    // Custom adapter for search results
-    private class SearchResultAdapter extends BaseAdapter {
-        private Context context;
-        private List<SearchResult> results;
-        
-        public SearchResultAdapter(Context context, List<SearchResult> results) {
-            this.context = context;
-            this.results = results;
-        }
-        
-        @Override
-        public int getCount() {
-            return results.size();
-        }
-        
-        @Override
-        public Object getItem(int position) {
-            return results.get(position);
-        }
-        
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-        
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            View view = convertView;
-            if (view == null) {
-                LayoutInflater inflater = LayoutInflater.from(context);
-                view = inflater.inflate(R.layout.search_result_item, parent, false);
-            }
-            
-            SearchResult result = results.get(position);
-            
-            ImageView icon = view.findViewById(R.id.result_icon);
-            TextView title = view.findViewById(R.id.result_title);
-            TextView subtitle = view.findViewById(R.id.result_subtitle);
-            
-            title.setText(result.getTitle());
-            subtitle.setText(result.getSubtitle());
-            
-            // Set appropriate icon based on type
-            switch (result.getType()) {
-                case "album":
-                    icon.setImageResource(R.drawable.ic_library);
-                    break;
-                case "artist":
-                    icon.setImageResource(R.drawable.ic_profile);
-                    break;
-                case "playlist":
-                    icon.setImageResource(R.drawable.ic_home);
-                    break;
-                default:
-                    icon.setImageResource(R.drawable.ic_library);
-                    break;
-            }
-            
-            return view;
+    private void handleHomeSearchResult(fragment_search.SearchResult result) {
+        // Handle search result selection in home context
+        switch (result.getType()) {
+            case "playlist":
+                // Navigate to playlist screen or show playlist content
+                break;
+            case "artist":
+                // Navigate to artist screen or show artist content
+                break;
+            case "album":
+                // Navigate to album screen or show album content
+                break;
+            case "song":
+                // Navigate to song or start playing
+                break;
         }
     }
 }
