@@ -37,7 +37,7 @@
             android:id="@+id/result_subtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Artist or Album"
+            android:text="Artists, Playlists, Albums"
             android:textColor="@color/primary_grey"
             android:textSize="14sp" />
     </LinearLayout>

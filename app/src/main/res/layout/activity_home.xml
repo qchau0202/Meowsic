@@ -25,22 +25,42 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Bottom Navigation -->
-    <com.google.android.material.bottomnavigation.BottomNavigationView
+    <!-- Custom Bottom Navigation -->
+    <LinearLayout
         android:id="@+id/bottom_navigation"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@color/primary_white"
         android:elevation="8dp"
-        app:itemIconTint="@color/bottom_nav_item_color"
-        app:itemTextColor="@color/bottom_nav_item_color"
-        app:itemIconSize="26dp"
-        app:itemTextAppearanceActive="@style/BottomNavigationTextActive"
-        app:itemTextAppearanceInactive="@style/BottomNavigationTextInactive"
-        app:labelVisibilityMode="labeled"
-        app:menu="@menu/bottom_nav_menu"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Home Navigation Item -->
+        <include
+            android:id="@+id/nav_home_item"
+            layout="@layout/bottom_nav_item"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <!-- Library Navigation Item -->
+        <include
+            android:id="@+id/nav_library_item"
+            layout="@layout/bottom_nav_item"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <!-- Profile Navigation Item -->
+        <include
+            android:id="@+id/nav_profile_item"
+            layout="@layout/bottom_nav_item"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

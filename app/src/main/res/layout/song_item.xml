@@ -42,11 +42,4 @@
             android:layout_marginTop="2dp"/>
     </LinearLayout>
 
-    <ImageView
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:src="@drawable/ic_library"
-        android:contentDescription="Play"
-        app:tint="@color/primary_pink" />
-
 </LinearLayout>

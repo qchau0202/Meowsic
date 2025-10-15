@@ -7,21 +7,34 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder> {
     private List<Song> fullList;
     private List<Song> filteredList;
     private String currentType = "All";
+    private OnSongClickListener onSongClickListener;
 
+    // Interface for handling song clicks
+    public interface OnSongClickListener {
+        void onSongClick(Song song);
+    }
 
     // Constructor
     public SongAdapter(List<Song> songList) {
         this.fullList = new ArrayList<>(songList);
         this.filteredList = new ArrayList<>(songList);
+    }
+
+    // Set click listener
+    public void setOnSongClickListener(OnSongClickListener listener) {
+        this.onSongClickListener = listener;
     }
 
     @NonNull
@@ -36,8 +49,15 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     public void onBindViewHolder(@NonNull SongViewHolder holder, int position) {
         Song song = filteredList.get(position);
         holder.title.setText(song.getTitle());
-        holder.type.setText(song.getType());
+        holder.type.setText(song.getArtist());
         holder.image.setImageResource(song.getImageRes());
+        
+        // Set click listener for the entire item
+        holder.itemView.setOnClickListener(v -> {
+            if (onSongClickListener != null) {
+                onSongClickListener.onSongClick(song);
+            }
+        });
     }
 
     @Override
@@ -60,11 +80,19 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
             boolean matchType = currentType.equals("All") || song.getType().equalsIgnoreCase(currentType);
             boolean matchQuery = query.isEmpty() ||
                     song.getTitle().toLowerCase().contains(query.toLowerCase()) ||
-                    song.getType().toLowerCase().contains(query.toLowerCase());
+                    song.getArtist().toLowerCase().contains(query.toLowerCase());
             if (matchType && matchQuery) {
                 filteredList.add(song);
             }
         }
+        notifyDataSetChanged();
+    }
+    
+    // Method to restore full list when needed
+    public void restoreFullList() {
+        filteredList.clear();
+        filteredList.addAll(fullList);
+        currentType = "All";
         notifyDataSetChanged();
     }
 

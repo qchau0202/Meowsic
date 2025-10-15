@@ -32,93 +32,19 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_menu"
+                android:id="@+id/btn_add_library"
+                android:src="@drawable/ic_add_24px"
                 android:contentDescription="Menu"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:padding="4dp" />
         </LinearLayout>
 
-        <!-- Search Bar Container -->
-        <LinearLayout
+        <!-- Search Fragment Container -->
+        <FrameLayout
+            android:id="@+id/search_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginBottom="24dp">
-
-            <!-- Search Input -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:background="@drawable/search_bar_background"
-                android:padding="12dp">
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_search"
-                    android:contentDescription="Search"
-                    android:background="@drawable/search_bar_background"
-                    app:tint="@color/primary_grey"
-                    android:layout_marginEnd="12dp" />
-
-                <EditText
-                    android:id="@+id/search_input"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="Search..."
-                    android:textColor="@color/primary_black"
-                    android:textColorHint="@color/primary_grey"
-                    android:textSize="16sp"
-                    android:background="@drawable/search_bar_background"
-                    android:inputType="text"
-                    android:imeOptions="actionSearch"
-                    android:maxLines="1" />
-
-                <ImageView
-                    android:id="@+id/search_filter"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_filter"
-                    android:contentDescription="Filter"
-                    app:tint="@color/primary_grey"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:padding="4dp" />
-            </LinearLayout>
-
-            <!-- Search Results Dropdown -->
-            <LinearLayout
-                android:id="@+id/search_dropdown"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/search_dropdown_background"
-                android:layout_marginTop="4dp"
-                android:visibility="gone">
-
-                <TextView
-                    android:id="@+id/search_no_results"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="No results found"
-                    android:textColor="@color/primary_grey"
-                    android:textSize="14sp"
-                    android:gravity="center"
-                    android:padding="16dp"
-                    android:visibility="gone" />
-
-                <ListView
-                    android:id="@+id/search_results_list"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:maxHeight="400dp"
-                    android:divider="@android:color/transparent"
-                    android:dividerHeight="1dp"
-                    android:scrollbars="vertical" />
-            </LinearLayout>
-        </LinearLayout>
+            android:layout_marginBottom="24dp" />
 
         <!-- Filter Buttons -->
         <LinearLayout
@@ -126,24 +52,24 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="24dp">
+            android:layout_marginBottom="12dp">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_playlist"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:text="Playlist"
-                android:textColor="@color/primary_white"
+                android:layout_weight="1"
+                android:textColor="@color/primary_black"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                android:backgroundTint="@color/primary_pink"
+                android:backgroundTint="@color/card_shadow_bg"
                 app:cornerRadius="20dp"
                 android:layout_marginEnd="6dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_artist"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Artist"
@@ -157,7 +83,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_album"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Album"
@@ -173,15 +99,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="All Items"
-                android:textColor="@color/primary_black"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="16dp" />
 
             <!-- The list of songs -->
             <androidx.recyclerview.widget.RecyclerView
