@@ -93,6 +93,32 @@
                 android:backgroundTint="@color/card_shadow_bg"
                 android:layout_marginStart="6dp" />
         </LinearLayout>
+        <LinearLayout
+            android:id="@+id/layout_view_sort"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp">
+
+            <ImageButton
+                android:id="@+id/btn_toggle_view"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_grid_view"
+                android:contentDescription="Toggle view" />
+
+            <ImageButton
+                android:id="@+id/btn_sort"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/sort"
+                android:contentDescription="Sort" />
+        </LinearLayout>
+
 
         <!-- Content Section -->
         <LinearLayout

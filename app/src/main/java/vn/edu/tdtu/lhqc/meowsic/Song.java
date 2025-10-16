@@ -6,6 +6,7 @@ public class Song {
     private String type; // playlist, album, artist
     private int imageRes;
     private String uriString; // optional: content uri for local audio
+    private long createdAt;
 
     public Song(String title, String artist, int imageRes) {
         this.title = title;
@@ -13,6 +14,7 @@ public class Song {
         this.imageRes = imageRes;
         this.type = "song"; // default type for songs
         this.uriString = null;
+        this.createdAt = System.currentTimeMillis();
     }
 
     public Song(String title, String artist, String type, int imageRes) {
@@ -21,6 +23,7 @@ public class Song {
         this.type = type;
         this.imageRes = imageRes;
         this.uriString = null;
+        this.createdAt = System.currentTimeMillis();
     }
 
     public Song(String title, String artist, int imageRes, String uriString) {
@@ -29,6 +32,7 @@ public class Song {
         this.imageRes = imageRes;
         this.type = "song";
         this.uriString = uriString;
+        this.createdAt = System.currentTimeMillis();
     }
 
     public String getTitle() { return title; }
@@ -36,5 +40,6 @@ public class Song {
     public String getType() { return type; }
     public int getImageRes() { return imageRes; }
     public String getUriString() { return uriString; }
+    public long getCreatedAt() { return createdAt; }
 }
 
