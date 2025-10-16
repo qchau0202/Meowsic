@@ -100,6 +100,17 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <TextView
+                android:id="@+id/empty_state"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No songs yet. Tap + to import music."
+                android:textColor="@color/primary_grey"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:padding="16dp"
+                android:visibility="gone"/>
+
             <!-- The list of songs -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerViewSongs"

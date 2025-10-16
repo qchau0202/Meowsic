@@ -96,6 +96,20 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         notifyDataSetChanged();
     }
 
+    // Add a single song to the top of the list
+    public void addSong(Song song) {
+        if (song == null) return;
+        fullList.add(0, song);
+        restoreFullList();
+    }
+
+    // Add multiple songs to the top of the list
+    public void addSongs(List<Song> songs) {
+        if (songs == null || songs.isEmpty()) return;
+        fullList.addAll(0, songs);
+        restoreFullList();
+    }
+
     static class SongViewHolder extends RecyclerView.ViewHolder {
         ImageView image;
         TextView title, type;

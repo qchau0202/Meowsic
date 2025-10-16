@@ -252,19 +252,19 @@ public class fragment_search extends Fragment {
             // Set appropriate icon based on type
             switch (result.getType()) {
                 case "album":
-                    icon.setImageResource(R.drawable.ic_library);
+                    icon.setImageResource(R.drawable.ic_library_music_24px);
                     break;
                 case "artist":
-                    icon.setImageResource(R.drawable.ic_profile);
+                    icon.setImageResource(R.drawable.ic_profile_24px);
                     break;
                 case "playlist":
-                    icon.setImageResource(R.drawable.ic_home);
+                    icon.setImageResource(R.drawable.ic_home_24px);
                     break;
                 case "song":
-                    icon.setImageResource(R.drawable.ic_library);
+                    icon.setImageResource(R.drawable.ic_library_music_24px);
                     break;
                 default:
-                    icon.setImageResource(R.drawable.ic_library);
+                    icon.setImageResource(R.drawable.ic_library_music_24px);
                     break;
             }
             
