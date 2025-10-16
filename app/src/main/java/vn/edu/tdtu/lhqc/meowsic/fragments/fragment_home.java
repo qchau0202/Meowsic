@@ -6,13 +6,14 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
-import android.view.View;
 import vn.edu.tdtu.lhqc.meowsic.ui.PopupAddMenuHelper;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import vn.edu.tdtu.lhqc.meowsic.R;
+import vn.edu.tdtu.lhqc.meowsic.Song;
+import vn.edu.tdtu.lhqc.meowsic.SongAdapter;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -32,6 +33,7 @@ public class fragment_home extends Fragment {
 
     // Search fragment
     private fragment_search searchFragment;
+    // (Songs section moved to Library)
 
     public fragment_home() {
         // Required empty public constructor
@@ -73,6 +75,7 @@ public class fragment_home extends Fragment {
         // Setup search functionality
         setupSearchFragment();
         setupAddMenu(view);
+        // Songs list is shown in Library screen
         
         return view;
     }
@@ -80,7 +83,7 @@ public class fragment_home extends Fragment {
     private void setupAddMenu(View root) {
         View add = root.findViewById(R.id.btn_add_home);
         if (add != null) {
-            add.setOnClickListener(v -> PopupAddMenuHelper.show(requireContext(), v, new PopupAddMenuHelper.Listener() {
+            add.setOnClickListener(v -> PopupAddMenuHelper.show(requireContext(), new PopupAddMenuHelper.Listener() {
                 @Override
                 public void onCreatePlaylistSelected() {
                     // TODO: Navigate to create playlist screen or show dialog
@@ -88,12 +91,14 @@ public class fragment_home extends Fragment {
 
                 @Override
                 public void onImportMusicSelected() {
-                    // TODO: Launch file picker for mp3/mp4 import
+
                 }
             }));
         }
     }
     
+    // (Songs section setup removed; handled in Library)
+
     private void setupSearchFragment() {
         // Create search fragment
         searchFragment = new fragment_search();

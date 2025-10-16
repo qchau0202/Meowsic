@@ -31,7 +31,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:id="@+id/btn_add_home"
-                android:src="@drawable/ic_menu"
+                android:src="@drawable/ic_add_24px"
                 android:contentDescription="Menu"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:padding="4dp" />
@@ -291,5 +291,8 @@
                 </LinearLayout>
             </HorizontalScrollView>
         </LinearLayout>
+
+        
+
     </LinearLayout>
 </ScrollView>

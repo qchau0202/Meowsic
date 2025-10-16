@@ -1,9 +1,9 @@
 package vn.edu.tdtu.lhqc.meowsic.ui;
 
+import android.app.Dialog;
 import android.content.Context;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.PopupMenu;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 
@@ -18,24 +18,37 @@ public final class PopupAddMenuHelper {
 
     private PopupAddMenuHelper() {}
 
-    public static void show(@NonNull Context context, @NonNull View anchor, @NonNull Listener listener) {
-        PopupMenu popup = new PopupMenu(context, anchor);
-        popup.getMenuInflater().inflate(R.menu.add_actions_menu, popup.getMenu());
-        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                int id = item.getItemId();
-                if (id == R.id.action_create_playlist) {
-                    listener.onCreatePlaylistSelected();
-                    return true;
-                } else if (id == R.id.action_import_music) {
-                    listener.onImportMusicSelected();
-                    return true;
-                }
-                return false;
-            }
-        });
-        popup.show();
+    public static void show(@NonNull Context context, @NonNull Listener listener) {
+        // Create the dialog
+        Dialog dialog = new Dialog(context);
+        dialog.setContentView(R.layout.dialog_add_menu);
+        
+        // Make dialog appear in center and have proper dimensions
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        dialog.getWindow().setLayout(
+            (int) (context.getResources().getDisplayMetrics().widthPixels * 0.85f),
+            android.view.WindowManager.LayoutParams.WRAP_CONTENT
+        );
+        
+        // Get views
+        LinearLayout optionCreatePlaylist = dialog.findViewById(R.id.option_create_playlist);
+        LinearLayout optionImportMusic = dialog.findViewById(R.id.option_import_music);
+        
+        // Set up click listeners
+        if (optionCreatePlaylist != null) {
+            optionCreatePlaylist.setOnClickListener(v -> {
+                listener.onCreatePlaylistSelected();
+                dialog.dismiss();
+            });
+        }
+        if (optionImportMusic != null) {
+            optionImportMusic.setOnClickListener(v -> {
+                listener.onImportMusicSelected();
+                dialog.dismiss();
+            });
+        }
+        // Show dialog
+        dialog.show();
     }
 }
 

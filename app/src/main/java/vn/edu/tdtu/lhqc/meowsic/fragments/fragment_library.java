@@ -1,5 +1,6 @@
 package vn.edu.tdtu.lhqc.meowsic.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,6 +33,7 @@ public class fragment_library extends Fragment {
     // RecyclerView and adapter
     private RecyclerView recyclerView;
     private SongAdapter songAdapter;
+    private android.widget.TextView emptyState;
     
     // Search fragment and data
     private fragment_search searchFragment;
@@ -60,18 +62,84 @@ public class fragment_library extends Fragment {
     private void setupAddMenu(View root) {
         View add = root.findViewById(R.id.btn_add_library);
         if (add != null) {
-            add.setOnClickListener(v -> PopupAddMenuHelper.show(requireContext(), v, new PopupAddMenuHelper.Listener() {
+            add.setOnClickListener(v -> PopupAddMenuHelper.show(requireContext(), new PopupAddMenuHelper.Listener() {
                 @Override
                 public void onCreatePlaylistSelected() {
                     // TODO: Navigate to create playlist screen or show dialog
                 }
-
                 @Override
                 public void onImportMusicSelected() {
-                    // TODO: Launch file picker for mp3/mp4 import
+                    // Launch system picker for audio files
+                    android.content.Intent intent = new android.content.Intent(android.content.Intent.ACTION_OPEN_DOCUMENT);
+                    intent.addCategory(android.content.Intent.CATEGORY_OPENABLE);
+                    intent.setType("audio/*");
+                    intent.putExtra(android.content.Intent.EXTRA_ALLOW_MULTIPLE, true);
+                    intent.addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+                            | android.content.Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+                    startActivityForResult(intent, 1011);
                 }
             }));
         }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, android.content.Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1011 && resultCode == android.app.Activity.RESULT_OK && data != null) {
+            java.util.List<android.net.Uri> uris = new java.util.ArrayList<>();
+            if (data.getData() != null) {
+                uris.add(data.getData());
+            } else if (data.getClipData() != null) {
+                android.content.ClipData clip = data.getClipData();
+                for (int i = 0; i < clip.getItemCount(); i++) {
+                    uris.add(clip.getItemAt(i).getUri());
+                }
+            }
+            // Take persistable permission and ingest
+            List<Song> imported = new ArrayList<>();
+            for (android.net.Uri uri : uris) {
+                try {
+                    int takeFlags = data.getFlags() & (android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION | android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                    requireContext().getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                } catch (Exception ignored) {}
+                // Extract metadata and add to list
+                Song s = buildImportedSong(uri);
+                if (s != null) imported.add(s);
+            }
+            // Persist to simple local store
+            vn.edu.tdtu.lhqc.meowsic.SongStore.addAllAtTop(requireContext(), imported);
+            if (songAdapter != null) {
+                // Add newest first
+                for (int i = imported.size() - 1; i >= 0; i--) {
+                    songAdapter.addSong(imported.get(i));
+                }
+                allLibraryData.addAll(0, imported);
+                updateEmptyState();
+            } else {
+                allLibraryData.addAll(0, imported);
+                updateEmptyState();
+            }
+        }
+    }
+
+    private Song buildImportedSong(android.net.Uri uri) {
+        android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
+        try {
+            mmr.setDataSource(requireContext(), uri);
+            String title = valueOr(mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_TITLE), "Unknown");
+            String artist = valueOr(mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_ARTIST), "Unknown");
+            // For UI thumbnail fallback use app icon; album art could be extracted later
+            return new vn.edu.tdtu.lhqc.meowsic.Song(title, artist, R.drawable.meowsic_black_icon, uri.toString());
+        } catch (Exception ignored) {
+            return null;
+        } finally {
+            try { mmr.release(); } catch (Exception ignored) {}
+        }
+    }
+
+    private String valueOr(String s, String def) {
+        if (s == null || s.trim().isEmpty()) return def;
+        return s;
     }
     
     @Override
@@ -95,6 +163,7 @@ public class fragment_library extends Fragment {
         
         // RecyclerView
         recyclerView = view.findViewById(R.id.recyclerViewSongs);
+        emptyState = view.findViewById(R.id.empty_state);
     }
     
     private void setupFilterButtons() {
@@ -171,24 +240,16 @@ public class fragment_library extends Fragment {
     }
     
     private void setupRecyclerView() {
-        // Sample data for RecyclerView
-        allLibraryData = new ArrayList<>();
-        allLibraryData.add(new Song("Top Hits 2021", "Various Artists", "Playlist", R.drawable.meowsic_black_icon));
-        allLibraryData.add(new Song("Top Hits 2022", "Various Artists", "Playlist", R.drawable.meowsic_black_icon));
-        allLibraryData.add(new Song("Top Hits 2023", "Various Artists", "Playlist", R.drawable.meowsic_black_icon));
-        allLibraryData.add(new Song("Top Hits 2024", "Various Artists", "Playlist", R.drawable.meowsic_black_icon));
-        allLibraryData.add(new Song("Top Hits 2025", "Various Artists", "Playlist", R.drawable.meowsic_black_icon));
-        allLibraryData.add(new Song("Sơn Tùng MTP Playlist", "Sơn Tùng MTP", "Playlist", R.drawable.sontung));
-        allLibraryData.add(new Song("Sky Tour", "Sơn Tùng MTP", "Album", R.drawable.skytour));
-        allLibraryData.add(new Song("Ai", "tlinh", "Album", R.drawable.ai));
-        allLibraryData.add(new Song("G-Dragon Playlist", "G-Dragon", "Playlist", R.drawable.gdragon));
+        // Load persisted songs so list survives navigation/app restarts
+        allLibraryData = new ArrayList<>(vn.edu.tdtu.lhqc.meowsic.SongStore.load(requireContext()));
 
         // Setup RecyclerView
         songAdapter = new SongAdapter(allLibraryData);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(songAdapter);
+        updateEmptyState();
 
-        // Navigate to playlist view when a playlist item is clicked
+        // Navigate: songs -> now playing; playlists -> playlist fragment
         songAdapter.setOnSongClickListener(song -> {
             if (song == null || getActivity() == null) return;
             String type = song.getType();
@@ -198,8 +259,30 @@ public class fragment_library extends Fragment {
                         .replace(R.id.fragment_container, target)
                         .addToBackStack(null)
                         .commit();
+            } else {
+                // Pass URI when available to play the actual file
+                fragment_now_playing target;
+                if (song.getUriString() != null) {
+                    // Start playback via shared manager so minimized player also reflects state
+                    try {
+                        android.net.Uri uri = android.net.Uri.parse(song.getUriString());
+                        vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get().play(requireContext(), uri, song.getTitle(), song.getArtist());
+                    } catch (Exception ignored) {}
+                    target = fragment_now_playing.newInstance(song.getTitle(), song.getArtist(), song.getUriString());
+                } else {
+                    target = fragment_now_playing.newInstance(song.getTitle(), song.getArtist());
+                }
+                requireActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, target)
+                        .addToBackStack(null)
+                        .commit();
             }
         });
+    }
+
+    private void updateEmptyState() {
+        if (emptyState == null) return;
+        emptyState.setVisibility((allLibraryData == null || allLibraryData.isEmpty()) ? View.VISIBLE : View.GONE);
     }
     
     private void setupSearchFragment() {
