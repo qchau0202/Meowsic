@@ -55,18 +55,15 @@ public class fragment_profile extends Fragment {
         profileImage = view.findViewById(R.id.profile_image);
         profileName = view.findViewById(R.id.profile_name);
         profileTitle = view.findViewById(R.id.profile_title);
-        
         // Input fields
         editFullname = view.findViewById(R.id.edit_fullname);
         editEmail = view.findViewById(R.id.edit_email);
         // Button
         editProfileButton = view.findViewById(R.id.edit_profile_button);
-        
         // Menu options
         privacySettings = view.findViewById(R.id.privacy_settings);
         downloadSettings = view.findViewById(R.id.download_settings);
         aboutMeowsic = view.findViewById(R.id.about_meowsic);
-        
         // Set initial state
         setEditMode(false);
     }
