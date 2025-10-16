@@ -67,6 +67,14 @@ public final class SongStore {
             save(context, existing);
         }
     }
+
+    public static void addAtTop(Context context, Song song) {
+        if (song == null) return;
+        List<Song> existing = load(context);
+        existing.add(0, song);
+        save(context, existing);
+    }
+
 }
 
 

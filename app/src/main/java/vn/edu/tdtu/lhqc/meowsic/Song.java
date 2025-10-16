@@ -41,5 +41,13 @@ public class Song {
     public int getImageRes() { return imageRes; }
     public String getUriString() { return uriString; }
     public long getCreatedAt() { return createdAt; }
+
+    // Setter methods
+    public void setTitle(String title) { this.title = title; }
+    public void setArtist(String artist) { this.artist = artist; }
+    public void setType(String type) { this.type = type; }
+    public void setImageRes(int imageRes) { this.imageRes = imageRes; }
+    public void setUriString(String uriString) { this.uriString = uriString; }
+
 }
 

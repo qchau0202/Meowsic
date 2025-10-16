@@ -75,8 +75,50 @@ public class fragment_library extends Fragment {
             add.setOnClickListener(v -> PopupAddMenuHelper.show(requireContext(), new PopupAddMenuHelper.Listener() {
                 @Override
                 public void onCreatePlaylistSelected() {
-                    // TODO: Navigate to create playlist screen or show dialog
+                    // Hiển thị dialog nhập tên playlist
+                    android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(requireContext());
+                    builder.setTitle("Create Playlist");
+
+                    // Tạo ô nhập tên
+                    final android.widget.EditText input = new android.widget.EditText(requireContext());
+                    input.setHint("Enter playlist name");
+                    input.setInputType(android.text.InputType.TYPE_CLASS_TEXT);
+                    builder.setView(input);
+
+                    // Nút "Tạo"
+                    builder.setPositiveButton("Create", (dialog, which) -> {
+                        String playlistName = input.getText().toString().trim();
+                        if (playlistName.isEmpty()) {
+                            android.widget.Toast.makeText(requireContext(), "Please enter a playlist name", android.widget.Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        // Tạo playlist mới (dùng class Song làm đại diện playlist)
+                        Song newPlaylist = new Song(
+                                playlistName,
+                                "Playlist", // Artist field tạm dùng để hiển thị loại
+                                R.drawable.playlist, // Icon playlist (tạo icon trong drawable)
+                                null // Không có URI
+                        );
+                        newPlaylist.setType("Playlist");
+
+                        // Lưu vào danh sách
+                        allLibraryData.add(0, newPlaylist);
+                        songAdapter.updateData(allLibraryData);
+                        updateEmptyState();
+                        vn.edu.tdtu.lhqc.meowsic.SongStore.addAtTop(requireContext(), newPlaylist);
+
+
+                        // Thông báo
+                        android.widget.Toast.makeText(requireContext(), "Playlist created", android.widget.Toast.LENGTH_SHORT).show();
+                    });
+
+                    // Nút "Hủy"
+                    builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+
+                    builder.show();
                 }
+
                 @Override
                 public void onImportMusicSelected() {
                     // Launch system picker for audio files
@@ -302,13 +344,13 @@ public class fragment_library extends Fragment {
         // Load persisted songs so list survives navigation/app restarts
         allLibraryData = new ArrayList<>(vn.edu.tdtu.lhqc.meowsic.SongStore.load(requireContext()));
 
-        if (allLibraryData.isEmpty()) {
-            allLibraryData.add(new Song("Shape of You", "Ed Sheeran", R.drawable.ic_music_note_24px, "Pop"));
-            allLibraryData.add(new Song("Blinding Lights", "The Weeknd", R.drawable.ic_music_note_24px, "Pop"));
-            allLibraryData.add(new Song("Bohemian Rhapsody", "Queen", R.drawable.ic_music_note_24px, "Rock"));
-            allLibraryData.add(new Song("Bad Guy", "Billie Eilish", R.drawable.ic_music_note_24px, "Alternative"));
-            allLibraryData.add(new Song("Lose Yourself", "Eminem", R.drawable.ic_music_note_24px, "Hip-Hop"));
-        }
+        allLibraryData.add(new Song("Shape of You", "Ed Sheeran", R.drawable.ic_music_note_24px, "Pop"));
+        allLibraryData.add(new Song("Blinding Lights", "The Weeknd", R.drawable.ic_music_note_24px, "Pop"));
+        allLibraryData.add(new Song("Bohemian Rhapsody", "Queen", R.drawable.ic_music_note_24px, "Rock"));
+        allLibraryData.add(new Song("Bad Guy", "Billie Eilish", R.drawable.ic_music_note_24px, "Alternative"));
+        allLibraryData.add(new Song("Lose Yourself", "Eminem", R.drawable.ic_music_note_24px, "Hip-Hop"));
+
+        vn.edu.tdtu.lhqc.meowsic.SongStore.save(requireContext(), allLibraryData);
         // Setup RecyclerView
         songAdapter = new SongAdapter(allLibraryData);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
