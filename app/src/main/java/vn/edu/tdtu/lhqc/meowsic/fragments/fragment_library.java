@@ -1,5 +1,6 @@
 package vn.edu.tdtu.lhqc.meowsic.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -99,7 +100,7 @@ public class fragment_library extends Fragment {
             for (android.net.Uri uri : uris) {
                 try {
                     int takeFlags = data.getFlags() & (android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION | android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                    requireContext().getContentResolver().takePersistableUriPermission(uri, takeFlags);
+                    requireContext().getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 } catch (Exception ignored) {}
                 // Extract metadata and add to list
                 Song s = buildImportedSong(uri);
