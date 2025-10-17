@@ -5,22 +5,26 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import com.google.android.material.button.MaterialButton;
 
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import vn.edu.tdtu.lhqc.meowsic.R;
 import vn.edu.tdtu.lhqc.meowsic.Song;
 import vn.edu.tdtu.lhqc.meowsic.SongAdapter;
 import vn.edu.tdtu.lhqc.meowsic.ui.PopupAddMenuHelper;
-import vn.edu.tdtu.lhqc.meowsic.fragments.fragment_playlist;
 
 public class fragment_library extends Fragment {
     
@@ -29,7 +33,9 @@ public class fragment_library extends Fragment {
     private MaterialButton btnArtist;
     private MaterialButton btnAlbum;
     private String currentSelectedType = null; // null => All (no filter)
-    
+
+    private ImageButton btnToggleView;
+    private ImageButton btnSort;
     // RecyclerView and adapter
     private RecyclerView recyclerView;
     private SongAdapter songAdapter;
@@ -38,6 +44,9 @@ public class fragment_library extends Fragment {
     // Search fragment and data
     private fragment_search searchFragment;
     private List<Song> allLibraryData;
+
+    private boolean isGridMode = false;
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -50,6 +59,7 @@ public class fragment_library extends Fragment {
         setupRecyclerView();
         setupSearchFragment();
         setupAddMenu(view);
+        setupViewAndSortButtons();
 
         // Start with no tab selected, show all
         if (songAdapter != null) songAdapter.restoreFullList();
@@ -65,8 +75,50 @@ public class fragment_library extends Fragment {
             add.setOnClickListener(v -> PopupAddMenuHelper.show(requireContext(), new PopupAddMenuHelper.Listener() {
                 @Override
                 public void onCreatePlaylistSelected() {
-                    // TODO: Navigate to create playlist screen or show dialog
+                    // Hiển thị dialog nhập tên playlist
+                    android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(requireContext());
+                    builder.setTitle("Create Playlist");
+
+                    // Tạo ô nhập tên
+                    final android.widget.EditText input = new android.widget.EditText(requireContext());
+                    input.setHint("Enter playlist name");
+                    input.setInputType(android.text.InputType.TYPE_CLASS_TEXT);
+                    builder.setView(input);
+
+                    // Nút "Tạo"
+                    builder.setPositiveButton("Create", (dialog, which) -> {
+                        String playlistName = input.getText().toString().trim();
+                        if (playlistName.isEmpty()) {
+                            android.widget.Toast.makeText(requireContext(), "Please enter a playlist name", android.widget.Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        // Tạo playlist mới (dùng class Song làm đại diện playlist)
+                        Song newPlaylist = new Song(
+                                playlistName,
+                                "Playlist", // Artist field tạm dùng để hiển thị loại
+                                R.drawable.playlist, // Icon playlist (tạo icon trong drawable)
+                                null // Không có URI
+                        );
+                        newPlaylist.setType("Playlist");
+
+                        // Lưu vào danh sách
+                        allLibraryData.add(0, newPlaylist);
+                        songAdapter.updateData(allLibraryData);
+                        updateEmptyState();
+                        vn.edu.tdtu.lhqc.meowsic.SongStore.addAtTop(requireContext(), newPlaylist);
+
+
+                        // Thông báo
+                        android.widget.Toast.makeText(requireContext(), "Playlist created", android.widget.Toast.LENGTH_SHORT).show();
+                    });
+
+                    // Nút "Hủy"
+                    builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+
+                    builder.show();
                 }
+
                 @Override
                 public void onImportMusicSelected() {
                     // Launch system picker for audio files
@@ -164,6 +216,55 @@ public class fragment_library extends Fragment {
         // RecyclerView
         recyclerView = view.findViewById(R.id.recyclerViewSongs);
         emptyState = view.findViewById(R.id.empty_state);
+        btnToggleView = view.findViewById(R.id.btn_toggle_view);
+        btnSort = view.findViewById(R.id.btn_sort);
+    }
+
+    private void setupViewAndSortButtons() {
+        if (btnToggleView != null) {
+            btnToggleView.setOnClickListener(v -> toggleViewMode());
+        }
+        if (btnSort != null) {
+            btnSort.setOnClickListener(v -> showSortMenu(v));
+        }
+    }
+
+    private void toggleViewMode() {
+        isGridMode = !isGridMode;
+        if (isGridMode) {
+            recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
+            btnToggleView.setImageResource(R.drawable.ic_list_view); // icon đổi
+        } else {
+            recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+            btnToggleView.setImageResource(R.drawable.ic_grid_view);
+        }
+        recyclerView.setAdapter(songAdapter);
+    }
+
+    // 🔹 Hiển thị menu sắp xếp
+    private void showSortMenu(View anchor) {
+        PopupMenu popupMenu = new PopupMenu(requireContext(), anchor);
+        popupMenu.getMenu().add("Sort A → Z");
+        popupMenu.getMenu().add("Sort Z → A");
+        popupMenu.getMenu().add("Sort by Date (Newest)");
+        popupMenu.getMenu().add("Sort by Date (Oldest)");
+
+        popupMenu.setOnMenuItemClickListener(item -> {
+            String title = item.getTitle().toString();
+            if (title.contains("A → Z")) {
+                Collections.sort(allLibraryData, Comparator.comparing(Song::getTitle, String.CASE_INSENSITIVE_ORDER));
+            } else if (title.contains("Z → A")) {
+                Collections.sort(allLibraryData, (a, b) -> b.getTitle().compareToIgnoreCase(a.getTitle()));
+            } else if (title.contains("Newest")) {
+                Collections.sort(allLibraryData, (a, b) -> Long.compare(b.getCreatedAt(), a.getCreatedAt()));
+            } else if (title.contains("Oldest")) {
+                Collections.sort(allLibraryData, Comparator.comparingLong(Song::getCreatedAt));
+            }
+            songAdapter.updateData(allLibraryData);
+            return true;
+        });
+
+        popupMenu.show();
     }
     
     private void setupFilterButtons() {
@@ -243,6 +344,13 @@ public class fragment_library extends Fragment {
         // Load persisted songs so list survives navigation/app restarts
         allLibraryData = new ArrayList<>(vn.edu.tdtu.lhqc.meowsic.SongStore.load(requireContext()));
 
+        allLibraryData.add(new Song("Shape of You", "Ed Sheeran", R.drawable.ic_music_note_24px, "Pop"));
+        allLibraryData.add(new Song("Blinding Lights", "The Weeknd", R.drawable.ic_music_note_24px, "Pop"));
+        allLibraryData.add(new Song("Bohemian Rhapsody", "Queen", R.drawable.ic_music_note_24px, "Rock"));
+        allLibraryData.add(new Song("Bad Guy", "Billie Eilish", R.drawable.ic_music_note_24px, "Alternative"));
+        allLibraryData.add(new Song("Lose Yourself", "Eminem", R.drawable.ic_music_note_24px, "Hip-Hop"));
+
+        vn.edu.tdtu.lhqc.meowsic.SongStore.save(requireContext(), allLibraryData);
         // Setup RecyclerView
         songAdapter = new SongAdapter(allLibraryData);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));

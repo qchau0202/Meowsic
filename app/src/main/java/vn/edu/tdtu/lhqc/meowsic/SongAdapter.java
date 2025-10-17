@@ -21,6 +21,13 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     private String currentType = "All";
     private OnSongClickListener onSongClickListener;
 
+    public void updateData(List<Song> allLibraryData) {
+        if (allLibraryData == null) return;
+        fullList.clear();
+        fullList.addAll(allLibraryData);
+        restoreFullList(); // Hiển thị toàn bộ, không filter
+    }
+
     // Interface for handling song clicks
     public interface OnSongClickListener {
         void onSongClick(Song song);
@@ -120,4 +127,37 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
             type = itemView.findViewById(R.id.textType);
         }
     }
+
+    private boolean isGridView = false;
+
+    public void toggleViewType() {
+        isGridView = !isGridView;
+        notifyDataSetChanged();
+    }
+
+    public boolean isGridView() {
+        return isGridView;
+    }
+
+    // Nếu bạn muốn inflate layout khác nhau cho grid/list, sửa lại onCreateViewHolder:
+    @Override
+    public int getItemViewType(int position) {
+        return isGridView ? 1 : 0;
+    }
+
+    // ===== SORT METHODS =====
+    public void sortByTitle(boolean ascending) {
+        filteredList.sort((s1, s2) -> ascending
+                ? s1.getTitle().compareToIgnoreCase(s2.getTitle())
+                : s2.getTitle().compareToIgnoreCase(s1.getTitle()));
+        notifyDataSetChanged();
+    }
+
+    public void sortByArtist(boolean ascending) {
+        filteredList.sort((s1, s2) -> ascending
+                ? s1.getArtist().compareToIgnoreCase(s2.getArtist())
+                : s2.getArtist().compareToIgnoreCase(s1.getArtist()));
+        notifyDataSetChanged();
+    }
+
 }
