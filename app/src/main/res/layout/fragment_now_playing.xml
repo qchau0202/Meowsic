@@ -45,7 +45,6 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:src="@drawable/ic_more_vertical_24px"
-            android:contentDescription="Menu"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="4dp"
             app:tint="@color/primary_black" />
@@ -62,7 +61,7 @@
         <ImageView
             android:id="@+id/album_art"
             android:layout_width="280dp"
-            android:layout_height="280dp"
+            android:layout_height="0dp"
             android:layout_margin="4dp"
             android:layout_weight="1"
             android:adjustViewBounds="true"
