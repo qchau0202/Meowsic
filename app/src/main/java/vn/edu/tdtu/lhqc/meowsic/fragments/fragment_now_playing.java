@@ -337,6 +337,7 @@ public class fragment_now_playing extends Fragment {
         
         // Get views
         LinearLayout optionAddToPlaylist = dialog.findViewById(R.id.option_add_to_playlist);
+        LinearLayout optionPlaybackSpeed = dialog.findViewById(R.id.option_playback_speed);
 
         // Set up click listeners
         if (optionAddToPlaylist != null) {
@@ -345,7 +346,100 @@ public class fragment_now_playing extends Fragment {
                 dialog.dismiss();
             });
         }
+        
+        if (optionPlaybackSpeed != null) {
+            optionPlaybackSpeed.setOnClickListener(v -> {
+                dialog.dismiss();
+                showPlaybackSpeedDialog();
+            });
+        }
+        
         // Show dialog
         dialog.show();
+    }
+    
+    private void showPlaybackSpeedDialog() {
+        // Create the playback speed dialog
+        Dialog speedDialog = new Dialog(requireContext());
+        speedDialog.setContentView(R.layout.dialog_playback_speed);
+        
+        // Make dialog appear in center and have proper dimensions
+        speedDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        speedDialog.getWindow().setLayout(
+            (int) (requireContext().getResources().getDisplayMetrics().widthPixels * 0.85f),
+            android.view.WindowManager.LayoutParams.WRAP_CONTENT
+        );
+        
+        // Get views
+        TextView speedValueText = speedDialog.findViewById(R.id.speed_value_text);
+        SeekBar speedSlider = speedDialog.findViewById(R.id.speed_slider);
+        com.google.android.material.button.MaterialButton speed05x = speedDialog.findViewById(R.id.speed_0_5x);
+        com.google.android.material.button.MaterialButton speed1x = speedDialog.findViewById(R.id.speed_1x);
+        com.google.android.material.button.MaterialButton speed15x = speedDialog.findViewById(R.id.speed_1_5x);
+        com.google.android.material.button.MaterialButton speed2x = speedDialog.findViewById(R.id.speed_2x);
+        com.google.android.material.button.MaterialButton btnClose = speedDialog.findViewById(R.id.btn_close_speed);
+        
+        // Helper method to convert progress to speed
+        final float[] getSpeedFromProgress = new float[1];
+        getSpeedFromProgress[0] = 0.25f + (speedSlider.getProgress() * 0.25f);
+        
+        // Update speed value text initially
+        if (speedValueText != null) {
+            speedValueText.setText(String.format(java.util.Locale.getDefault(), "%.2fx", getSpeedFromProgress[0]));
+        }
+        
+        // Setup slider listener
+        if (speedSlider != null) {
+            speedSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    float speed = 0.25f + (progress * 0.25f);
+                    if (speedValueText != null) {
+                        speedValueText.setText(String.format(java.util.Locale.getDefault(), "%.2fx", speed));
+                    }
+                }
+                
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {}
+                
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+                    // TODO: Apply speed to playback
+                }
+            });
+        }
+        
+        // Setup preset button listeners
+        if (speed05x != null) {
+            speed05x.setOnClickListener(v -> {
+                if (speedSlider != null) speedSlider.setProgress(1); // 0.5x = 0.25 + (1 * 0.25)
+            });
+        }
+        
+        if (speed1x != null) {
+            speed1x.setOnClickListener(v -> {
+                if (speedSlider != null) speedSlider.setProgress(3); // 1.0x = 0.25 + (3 * 0.25)
+            });
+        }
+        
+        if (speed15x != null) {
+            speed15x.setOnClickListener(v -> {
+                if (speedSlider != null) speedSlider.setProgress(5); // 1.5x = 0.25 + (5 * 0.25)
+            });
+        }
+        
+        if (speed2x != null) {
+            speed2x.setOnClickListener(v -> {
+                if (speedSlider != null) speedSlider.setProgress(7); // 2.0x = 0.25 + (7 * 0.25)
+            });
+        }
+        
+        // Setup close button
+        if (btnClose != null) {
+            btnClose.setOnClickListener(v -> speedDialog.dismiss());
+        }
+        
+        // Show dialog
+        speedDialog.show();
     }
 }

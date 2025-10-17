@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/dialog_background"
+    android:padding="24dp">
+
+    <!-- Header -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Playback Speed"
+        android:textColor="@color/primary_black"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Current Speed Display -->
+    <TextView
+        android:id="@+id/speed_value_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="1.0x"
+        android:textColor="@color/primary_pink"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="24dp" />
+
+    <!-- Speed Labels Row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="8dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="0.25x"
+            android:textColor="@color/primary_grey"
+            android:textSize="12sp"
+            android:gravity="start" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="1.0x"
+            android:textColor="@color/primary_grey"
+            android:textSize="12sp"
+            android:gravity="center" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="2.0x"
+            android:textColor="@color/primary_grey"
+            android:textSize="12sp"
+            android:gravity="end" />
+    </LinearLayout>
+
+    <!-- Speed Slider -->
+    <SeekBar
+        android:id="@+id/speed_slider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="7"
+        android:progress="3"
+        android:progressTint="@color/primary_pink"
+        android:thumbTint="@color/primary_pink"
+        android:layout_marginBottom="32dp" />
+
+    <!-- Preset Speed Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="24dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/speed_0_5x"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="0.5x"
+            android:textSize="14sp"
+            android:layout_marginEnd="8dp"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            app:strokeColor="@color/primary_pink"
+            android:textColor="@color/primary_pink" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/speed_1x"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="1x"
+            android:textSize="14sp"
+            android:layout_marginEnd="8dp"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            app:strokeColor="@color/primary_pink"
+            android:textColor="@color/primary_pink" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/speed_1_5x"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="1.5x"
+            android:textSize="14sp"
+            android:layout_marginEnd="8dp"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            app:strokeColor="@color/primary_pink"
+            android:textColor="@color/primary_pink" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/speed_2x"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="2x"
+            android:textSize="14sp"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            app:strokeColor="@color/primary_pink"
+            android:textColor="@color/primary_pink" />
+    </LinearLayout>
+
+    <!-- Close Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_close_speed"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Done"
+        android:textSize="16sp"
+        android:backgroundTint="@color/primary_pink"
+        android:textColor="@color/primary_white"
+        style="@style/Widget.Material3.Button" />
+
+</LinearLayout>
+

@@ -46,4 +46,33 @@
             android:textSize="16sp" />
 
     </LinearLayout>
+
+    <!-- Playback Speed Option -->
+    <LinearLayout
+        android:id="@+id/option_playback_speed"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@drawable/dialog_option_ripple"
+        android:padding="16dp"
+        android:layout_marginBottom="16dp">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_playbackspeed_24px"
+            android:contentDescription="Playback Speed"
+            app:tint="@color/primary_black"
+            android:layout_marginEnd="16dp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Playback speed"
+            android:textColor="@color/primary_black"
+            android:textSize="16sp" />
+
+    </LinearLayout>
 </LinearLayout>
