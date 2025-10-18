@@ -129,6 +129,7 @@ public class HomeActivity extends AppCompatActivity implements fragment_now_play
         final TextView miniTotalTime = minimizedPlayer.findViewById(R.id.mini_total_time);
         final SeekBar miniProgress = minimizedPlayer.findViewById(R.id.mini_progress);
         final ImageView miniPlayPause = minimizedPlayer.findViewById(R.id.mini_play_pause);
+        final ImageView miniAlbumArt = minimizedPlayer.findViewById(R.id.mini_album_art);
         
         miniPlayerListener = new vn.edu.tdtu.lhqc.meowsic.PlaybackManager.Listener() {
             @Override
@@ -150,6 +151,8 @@ public class HomeActivity extends AppCompatActivity implements fragment_now_play
             @Override
             public void onMetadataChanged(String title, String artist) {
                 if (miniSongTitle != null) miniSongTitle.setText(title);
+                // Load album art when metadata changes
+                loadMiniPlayerAlbumArt(miniAlbumArt);
             }
             
             @Override
@@ -159,6 +162,9 @@ public class HomeActivity extends AppCompatActivity implements fragment_now_play
         };
         
         vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get().addListener(miniPlayerListener);
+        
+        // Load initial album art
+        loadMiniPlayerAlbumArt(miniAlbumArt);
         
         // Set initial icon state
         if (miniPlayPause != null) {
@@ -243,5 +249,36 @@ public class HomeActivity extends AppCompatActivity implements fragment_now_play
         // The listener set up in setupMinimizedPlayerListeners() will handle all updates automatically
         // This method is kept for interface compatibility but doesn't need to do anything
         // since PlaybackManager already notifies the miniPlayerListener when metadata changes
+    }
+    
+    private void loadMiniPlayerAlbumArt(ImageView albumArtView) {
+        if (albumArtView == null) return;
+        
+        vn.edu.tdtu.lhqc.meowsic.PlaybackManager pm = vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get();
+        android.net.Uri currentUri = pm.getCurrentUri();
+        
+        if (currentUri == null) {
+            albumArtView.setImageResource(R.drawable.billie_eilish);
+            return;
+        }
+        
+        // Load album art from library
+        java.util.List<vn.edu.tdtu.lhqc.meowsic.Song> allSongs = vn.edu.tdtu.lhqc.meowsic.SongStore.load(this);
+        for (vn.edu.tdtu.lhqc.meowsic.Song song : allSongs) {
+            if (song.getUriString() != null && song.getUriString().equals(currentUri.toString())) {
+                if (song.hasAlbumArt()) {
+                    try {
+                        byte[] decodedBytes = android.util.Base64.decode(song.getAlbumArtBase64(), android.util.Base64.DEFAULT);
+                        android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                        albumArtView.setImageBitmap(bitmap);
+                        return;
+                    } catch (Exception ignored) {}
+                }
+                break;
+            }
+        }
+        
+        // Fallback to default image
+        albumArtView.setImageResource(R.drawable.billie_eilish);
     }
 }

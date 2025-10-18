@@ -55,6 +55,19 @@
             android:layout_marginBottom="12dp">
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_all"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="All"
+                android:layout_weight="1"
+                android:textColor="@color/primary_white"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:backgroundTint="@color/primary_pink"
+                app:cornerRadius="20dp"
+                android:layout_marginEnd="6dp" />
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_playlist"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -65,7 +78,8 @@
                 android:textStyle="bold"
                 android:backgroundTint="@color/card_shadow_bg"
                 app:cornerRadius="20dp"
-                android:layout_marginEnd="6dp" />
+                android:layout_marginStart="3dp"
+                android:layout_marginEnd="3dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_artist"
@@ -78,19 +92,6 @@
                 android:textStyle="bold"
                 android:backgroundTint="@color/card_shadow_bg"
                 app:cornerRadius="20dp"
-                android:layout_marginStart="3dp"
-                android:layout_marginEnd="3dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_album"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Album"
-                android:textColor="@color/primary_black"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:backgroundTint="@color/card_shadow_bg"
                 android:layout_marginStart="6dp" />
         </LinearLayout>
         <LinearLayout
@@ -107,7 +108,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_grid_view"
+                android:src="@drawable/ic_grid_view_24px"
                 android:contentDescription="Toggle view" />
 
             <ImageButton
@@ -131,6 +132,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="No songs yet. Tap + to import music."
+                android:textColor="@color/primary_grey"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:padding="16dp"
+                android:visibility="gone"/>
+
+            <TextView
+                android:id="@+id/filter_empty_state"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No items found for this filter."
                 android:textColor="@color/primary_grey"
                 android:textSize="14sp"
                 android:gravity="center"

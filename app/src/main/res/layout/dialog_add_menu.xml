@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:background="@drawable/dialog_option_ripple"
+        android:background="?attr/selectableItemBackground"
         android:padding="16dp">
 
         <ImageView
@@ -43,9 +43,9 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:background="@drawable/dialog_option_ripple"
+        android:background="?attr/selectableItemBackground"
         android:padding="16dp"
-        android:layout_marginBottom="16dp">
+        android:layout_marginTop="16dp">
 
         <ImageView
             android:layout_width="24dp"
@@ -53,6 +53,7 @@
             android:src="@drawable/ic_music_note_24px"
             android:contentDescription="Import Music"
             app:tint="@color/primary_black"
+            android:background="@android:color/transparent"
             android:layout_marginEnd="16dp" />
 
         <TextView
@@ -61,6 +62,38 @@
             android:layout_weight="1"
             android:text="Import music from files"
             android:textColor="@color/primary_black"
+            android:background="@android:color/transparent"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <!-- Remove Items Option -->
+    <LinearLayout
+        android:id="@+id/option_remove_songs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="?attr/selectableItemBackground"
+        android:padding="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_playlist_remove_24px"
+            android:contentDescription="Remove Items"
+            app:tint="@color/primary_black"
+            android:background="@android:color/transparent"
+            android:layout_marginEnd="16dp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Remove items"
+            android:textColor="@color/primary_black"
+            android:background="@android:color/transparent"
             android:textSize="16sp" />
     </LinearLayout>
 </LinearLayout>

@@ -6,7 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
-import vn.edu.tdtu.lhqc.meowsic.ui.PopupAddMenuHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.List;
 import vn.edu.tdtu.lhqc.meowsic.R;
 import vn.edu.tdtu.lhqc.meowsic.Song;
 import vn.edu.tdtu.lhqc.meowsic.SongAdapter;
+import vn.edu.tdtu.lhqc.meowsic.RecentlyPlayedStore;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -33,7 +35,13 @@ public class fragment_home extends Fragment {
 
     // Search fragment
     private fragment_search searchFragment;
-    // (Songs section moved to Library)
+    
+    // Recently played
+    private View recentlyPlayedSection;
+    private RecyclerView recyclerRecentlyPlayed;
+    private SongAdapter recentlyPlayedAdapter;
+    private android.widget.ImageView btnClearRecent;
+    private android.widget.TextView recentlyPlayedEmpty;
 
     public fragment_home() {
         // Required empty public constructor
@@ -72,32 +80,29 @@ public class fragment_home extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         
+        // Initialize views
+        initializeViews(view);
+        
         // Setup search functionality
         setupSearchFragment();
-        setupAddMenu(view);
-        // Songs list is shown in Library screen
+        setupRecentlyPlayed();
         
         return view;
     }
-
-    private void setupAddMenu(View root) {
-        View add = root.findViewById(R.id.btn_add_home);
-        if (add != null) {
-            add.setOnClickListener(v -> PopupAddMenuHelper.show(requireContext(), new PopupAddMenuHelper.Listener() {
-                @Override
-                public void onCreatePlaylistSelected() {
-                    // TODO: Navigate to create playlist screen or show dialog
-                }
-
-                @Override
-                public void onImportMusicSelected() {
-
-                }
-            }));
-        }
+    
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Refresh recently played when returning to home
+        loadRecentlyPlayed();
     }
     
-    // (Songs section setup removed; handled in Library)
+    private void initializeViews(View view) {
+        recentlyPlayedSection = view.findViewById(R.id.recently_played_section);
+        recyclerRecentlyPlayed = view.findViewById(R.id.recycler_recently_played);
+        btnClearRecent = view.findViewById(R.id.btn_clear_recent);
+        recentlyPlayedEmpty = view.findViewById(R.id.recently_played_empty);
+    }
 
     private void setupSearchFragment() {
         // Create search fragment
@@ -161,6 +166,86 @@ public class fragment_home extends Fragment {
             case "song":
                 // Navigate to song or start playing
                 break;
+        }
+    }
+    
+    private void setupRecentlyPlayed() {
+        if (recyclerRecentlyPlayed == null) return;
+        
+        // Setup RecyclerView
+        recyclerRecentlyPlayed.setLayoutManager(new LinearLayoutManager(getContext()));
+        
+        // Setup clear button
+        if (btnClearRecent != null) {
+            btnClearRecent.setOnClickListener(v -> {
+                new android.app.AlertDialog.Builder(requireContext())
+                    .setTitle("Clear Recently Played")
+                    .setMessage("Are you sure you want to clear your listening history?")
+                    .setPositiveButton("Clear", (dialog, which) -> {
+                        RecentlyPlayedStore.clear(requireContext());
+                        loadRecentlyPlayed();
+                        android.widget.Toast.makeText(requireContext(), 
+                            "Recently played cleared", 
+                            android.widget.Toast.LENGTH_SHORT).show();
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
+            });
+        }
+        
+        // Load initial data
+        loadRecentlyPlayed();
+    }
+    
+    private void loadRecentlyPlayed() {
+        if (recyclerRecentlyPlayed == null || recentlyPlayedSection == null || recentlyPlayedEmpty == null) return;
+        
+        List<Song> recentSongs = RecentlyPlayedStore.load(requireContext());
+        
+        // Always show the section
+        recentlyPlayedSection.setVisibility(View.VISIBLE);
+        
+        if (recentSongs.isEmpty()) {
+            // Show empty state message, hide RecyclerView and clear button
+            recentlyPlayedEmpty.setVisibility(View.VISIBLE);
+            recyclerRecentlyPlayed.setVisibility(View.GONE);
+            if (btnClearRecent != null) {
+                btnClearRecent.setVisibility(View.GONE);
+            }
+        } else {
+            // Show RecyclerView and clear button, hide empty message
+            recentlyPlayedEmpty.setVisibility(View.GONE);
+            recyclerRecentlyPlayed.setVisibility(View.VISIBLE);
+            if (btnClearRecent != null) {
+                btnClearRecent.setVisibility(View.VISIBLE);
+            }
+            
+            // Always recreate adapter to avoid state issues
+            recentlyPlayedAdapter = new SongAdapter(recentSongs);
+            recyclerRecentlyPlayed.setAdapter(recentlyPlayedAdapter);
+            
+            // Set click listener to play song
+            recentlyPlayedAdapter.setOnSongClickListener(song -> {
+                if (song == null || getActivity() == null) return;
+                if (song.getUriString() != null) {
+                    // Start playback via shared manager
+                    try {
+                        android.net.Uri uri = android.net.Uri.parse(song.getUriString());
+                        vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get().play(
+                            requireContext(), uri, song.getTitle(), song.getArtist(), song.getAlbumArtBase64()
+                        );
+                    } catch (Exception ignored) {}
+                    
+                    // Navigate to now playing
+                    fragment_now_playing target = fragment_now_playing.newInstance(
+                        song.getTitle(), song.getArtist(), song.getUriString()
+                    );
+                    requireActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, target)
+                        .addToBackStack(null)
+                        .commit();
+                }
+            });
         }
     }
 }

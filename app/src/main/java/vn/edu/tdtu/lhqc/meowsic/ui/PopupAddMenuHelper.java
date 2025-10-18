@@ -14,6 +14,7 @@ public final class PopupAddMenuHelper {
     public interface Listener {
         void onCreatePlaylistSelected();
         void onImportMusicSelected();
+        void onRemoveItemsSelected();
     }
 
     private PopupAddMenuHelper() {}
@@ -33,6 +34,7 @@ public final class PopupAddMenuHelper {
         // Get views
         LinearLayout optionCreatePlaylist = dialog.findViewById(R.id.option_create_playlist);
         LinearLayout optionImportMusic = dialog.findViewById(R.id.option_import_music);
+        LinearLayout optionRemoveSongs = dialog.findViewById(R.id.option_remove_songs);
         
         // Set up click listeners
         if (optionCreatePlaylist != null) {
@@ -44,6 +46,12 @@ public final class PopupAddMenuHelper {
         if (optionImportMusic != null) {
             optionImportMusic.setOnClickListener(v -> {
                 listener.onImportMusicSelected();
+                dialog.dismiss();
+            });
+        }
+        if (optionRemoveSongs != null) {
+            optionRemoveSongs.setOnClickListener(v -> {
+                listener.onRemoveItemsSelected();
                 dialog.dismiss();
             });
         }

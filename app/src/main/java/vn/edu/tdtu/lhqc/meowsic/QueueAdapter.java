@@ -48,7 +48,19 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.QueueViewHol
         Song s = queue.get(position);
         holder.title.setText(s.getTitle());
         holder.sub.setText(s.getArtist());
-        holder.icon.setImageResource(s.getImageRes());
+        
+        // Load album art if available, otherwise use default image
+        if (s.hasAlbumArt()) {
+            try {
+                byte[] decodedBytes = android.util.Base64.decode(s.getAlbumArtBase64(), android.util.Base64.DEFAULT);
+                android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                holder.icon.setImageBitmap(bitmap);
+            } catch (Exception e) {
+                holder.icon.setImageResource(s.getImageRes());
+            }
+        } else {
+            holder.icon.setImageResource(s.getImageRes());
+        }
 
         holder.more.setOnClickListener(v -> {
             if (moreClickListener != null) moreClickListener.onMoreClick(v, holder.getBindingAdapterPosition());

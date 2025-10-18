@@ -20,6 +20,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     private List<Song> filteredList;
     private String currentType = "All";
     private OnSongClickListener onSongClickListener;
+    private OnSongMoreClickListener onSongMoreClickListener;
 
     public void updateData(List<Song> allLibraryData) {
         if (allLibraryData == null) return;
@@ -32,6 +33,11 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     public interface OnSongClickListener {
         void onSongClick(Song song);
     }
+    
+    // Interface for handling more button clicks
+    public interface OnSongMoreClickListener {
+        void onSongMoreClick(Song song, View view);
+    }
 
     // Constructor
     public SongAdapter(List<Song> songList) {
@@ -42,6 +48,11 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     // Set click listener
     public void setOnSongClickListener(OnSongClickListener listener) {
         this.onSongClickListener = listener;
+    }
+    
+    // Set more button click listener
+    public void setOnSongMoreClickListener(OnSongMoreClickListener listener) {
+        this.onSongMoreClickListener = listener;
     }
 
     @NonNull
@@ -57,7 +68,38 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         Song song = filteredList.get(position);
         holder.title.setText(song.getTitle());
         holder.type.setText(song.getArtist());
-        holder.image.setImageResource(song.getImageRes());
+        
+        // Load album art if available, otherwise use default image
+        if (song.hasAlbumArt()) {
+            try {
+                byte[] decodedBytes = android.util.Base64.decode(song.getAlbumArtBase64(), android.util.Base64.DEFAULT);
+                android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                holder.image.setImageBitmap(bitmap);
+            } catch (Exception e) {
+                holder.image.setImageResource(song.getImageRes());
+            }
+        } else {
+            holder.image.setImageResource(song.getImageRes());
+        }
+        
+        // Show/hide more button and arrow icon based on item type
+        boolean isSong = song.getUriString() != null && !song.getUriString().isEmpty() 
+                         && !song.getType().equalsIgnoreCase("Playlist");
+        
+        if (holder.btnMore != null) {
+            holder.btnMore.setVisibility(isSong ? View.VISIBLE : View.GONE);
+            if (isSong) {
+                holder.btnMore.setOnClickListener(v -> {
+                    if (onSongMoreClickListener != null) {
+                        onSongMoreClickListener.onSongMoreClick(song, v);
+                    }
+                });
+            }
+        }
+        
+        if (holder.arrowIcon != null) {
+            holder.arrowIcon.setVisibility(song.getType().equalsIgnoreCase("Playlist") ? View.VISIBLE : View.GONE);
+        }
         
         // Set click listener for the entire item
         holder.itemView.setOnClickListener(v -> {
@@ -119,12 +161,16 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
     static class SongViewHolder extends RecyclerView.ViewHolder {
         ImageView image;
+        ImageView arrowIcon;
+        ImageView btnMore;
         TextView title, type;
         public SongViewHolder(@NonNull View itemView) {
             super(itemView);
             image = itemView.findViewById(R.id.imageItem);
             title = itemView.findViewById(R.id.textTitle);
             type = itemView.findViewById(R.id.textType);
+            arrowIcon = itemView.findViewById(R.id.arrow_icon);
+            btnMore = itemView.findViewById(R.id.btn_more);
         }
     }
 

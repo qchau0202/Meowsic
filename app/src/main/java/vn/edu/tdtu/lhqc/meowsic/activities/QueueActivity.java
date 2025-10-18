@@ -27,7 +27,9 @@ public class QueueActivity extends AppCompatActivity {
     private QueueAdapter queueAdapter;
     private final List<Song> queueSongs = new ArrayList<>();
     private ImageView playPauseButton;
+    private ImageView albumArtView;
     private TextView titleView;
+    private TextView emptyStateView;
     private vn.edu.tdtu.lhqc.meowsic.PlaybackManager.Listener playbackListener;
 
     @Override
@@ -49,7 +51,8 @@ public class QueueActivity extends AppCompatActivity {
         // Get current playback info from PlaybackManager
         vn.edu.tdtu.lhqc.meowsic.PlaybackManager pm = vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get();
         
-        ImageView art = findViewById(R.id.np_art);
+        // Initialize views
+        albumArtView = findViewById(R.id.np_art);
         titleView = findViewById(R.id.np_title);
         TextView current = findViewById(R.id.np_current);
         TextView total = findViewById(R.id.np_total);
@@ -64,6 +67,9 @@ public class QueueActivity extends AppCompatActivity {
         }
         if (current != null) current.setText(formatTime(pm.getPosition()));
         if (total != null) total.setText(formatTime(pm.getDuration()));
+        
+        // Load album art for currently playing song
+        loadCurrentSongAlbumArt();
         
         // Setup seekbar
         if (progress != null) {
@@ -153,20 +159,36 @@ public class QueueActivity extends AppCompatActivity {
     }
     
     private void refreshQueue() {
-        // Reload queue excluding current song
-        queueSongs.clear();
-        List<Song> librarySongs = vn.edu.tdtu.lhqc.meowsic.SongStore.load(this);
-        vn.edu.tdtu.lhqc.meowsic.PlaybackManager pm = vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get();
-        String currentTitle = pm.getCurrentTitle();
-        
-        for (Song song : librarySongs) {
-            if (song.getUriString() != null && !song.getTitle().equals(currentTitle)) {
-                queueSongs.add(song);
-            }
-        }
-        
+        loadQueueSongs();
         if (queueAdapter != null) {
             queueAdapter.notifyDataSetChanged();
+        }
+        updateEmptyState();
+    }
+    
+    private void loadQueueSongs() {
+        // Clear and reload queue from QueueManager
+        queueSongs.clear();
+        
+        // Initialize QueueManager and get the queue
+        vn.edu.tdtu.lhqc.meowsic.QueueManager.getInstance(this);
+        List<Song> queueFromManager = vn.edu.tdtu.lhqc.meowsic.QueueManager.getQueue();
+        
+        // Get current playing song URI to exclude it
+        vn.edu.tdtu.lhqc.meowsic.PlaybackManager pm = vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get();
+        android.net.Uri currentUri = pm.getCurrentUri();
+        String currentUriString = (currentUri != null) ? currentUri.toString() : null;
+        int currentQueueIndex = vn.edu.tdtu.lhqc.meowsic.QueueManager.getCurrentIndex();
+        
+        // Add all songs from queue except the currently playing one
+        for (int i = 0; i < queueFromManager.size(); i++) {
+            // Skip the current song (at currentQueueIndex)
+            if (i == currentQueueIndex) continue;
+            
+            Song song = queueFromManager.get(i);
+            if (song.getUriString() != null) {
+                queueSongs.add(song);
+            }
         }
     }
     
@@ -187,24 +209,18 @@ public class QueueActivity extends AppCompatActivity {
 
     private void setupRecycler() {
         recyclerViewQueue = findViewById(R.id.recyclerViewQueue);
+        emptyStateView = findViewById(R.id.queue_empty_state);
         if (recyclerViewQueue == null) return;
 
-        // Load songs from library, excluding currently playing song
-        queueSongs.clear();
-        List<Song> librarySongs = vn.edu.tdtu.lhqc.meowsic.SongStore.load(this);
-        vn.edu.tdtu.lhqc.meowsic.PlaybackManager pm = vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get();
-        String currentTitle = pm.getCurrentTitle();
-        
-        // Filter to only songs (not playlists) and exclude currently playing song
-        for (Song song : librarySongs) {
-            if (song.getUriString() != null && !song.getTitle().equals(currentTitle)) {
-                queueSongs.add(song);
-            }
-        }
+        // Load queue songs
+        loadQueueSongs();
 
+        // Setup adapter
         queueAdapter = new QueueAdapter(queueSongs);
         recyclerViewQueue.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewQueue.setAdapter(queueAdapter);
+        
+        // Setup click listeners
         queueAdapter.setOnMoreClickListener((anchor, position) -> showQueueItemMenu(anchor, position));
         queueAdapter.setOnItemClickListener(position -> {
             if (position < 0 || position >= queueSongs.size()) return;
@@ -213,37 +229,99 @@ public class QueueActivity extends AppCompatActivity {
             if (uri != null) {
                 try {
                     vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get()
-                        .play(this, android.net.Uri.parse(uri), s.getTitle(), s.getArtist());
+                        .play(this, android.net.Uri.parse(uri), s.getTitle(), s.getArtist(), s.getAlbumArtBase64());
                 } catch (Exception ignored) {}
             }
         });
+        
+        // Update empty state visibility
+        updateEmptyState();
     }
 
     private void showQueueItemMenu(android.view.View anchor, int position) {
         if (position == RecyclerView.NO_POSITION) return;
         PopupMenu popup = new PopupMenu(this, anchor);
         popup.getMenu().add(0, 1, 0, "Remove from queue");
-        popup.getMenu().add(0, 2, 1, "Add to Up Next");
+        popup.getMenu().add(0, 2, 1, "Move to Up Next");
         popup.setOnMenuItemClickListener(item -> {
             int id = item.getItemId();
             if (id == 1) {
-                // Remove the selected song
+                // Remove the selected song from both UI and QueueManager
                 if (position >= 0 && position < queueSongs.size()) {
+                    Song songToRemove = queueSongs.get(position);
+                    String uriToRemove = songToRemove.getUriString();
+                    
+                    // Remove from UI
                     queueSongs.remove(position);
                     queueAdapter.notifyItemRemoved(position);
+                    
+                    // Remove from QueueManager
+                    if (uriToRemove != null) {
+                        vn.edu.tdtu.lhqc.meowsic.QueueManager.removeSong(uriToRemove);
+                    }
+                    
+                    updateEmptyState();
                 }
                 return true;
             } else if (id == 2) {
-                // Move the selected song to index 0 (next after current)
-                if (position > 0 && position < queueSongs.size()) {
-                    Song s = queueSongs.remove(position);
-                    queueSongs.add(0, s);
-                    queueAdapter.notifyDataSetChanged();
+                // Move to play next (right after current song in QueueManager)
+                if (position >= 0 && position < queueSongs.size()) {
+                    Song songToMove = queueSongs.get(position);
+                    String uriToMove = songToMove.getUriString();
+                    
+                    // Remove from current position in QueueManager
+                    if (uriToMove != null) {
+                        vn.edu.tdtu.lhqc.meowsic.QueueManager.removeSong(uriToMove);
+                        // Add to next position
+                        vn.edu.tdtu.lhqc.meowsic.QueueManager.addNext(songToMove);
+                    }
+                    
+                    // Refresh the UI
+                    refreshQueue();
                 }
                 return true;
             }
             return false;
         });
         popup.show();
+    }
+    
+    private void loadCurrentSongAlbumArt() {
+        if (albumArtView == null) return;
+        
+        vn.edu.tdtu.lhqc.meowsic.PlaybackManager pm = vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get();
+        android.net.Uri currentUri = pm.getCurrentUri();
+        
+        if (currentUri == null) {
+            albumArtView.setImageResource(R.drawable.billie_eilish);
+            return;
+        }
+        
+        // Load album art from library
+        List<Song> allSongs = vn.edu.tdtu.lhqc.meowsic.SongStore.load(this);
+        for (Song song : allSongs) {
+            if (song.getUriString() != null && song.getUriString().equals(currentUri.toString())) {
+                if (song.hasAlbumArt()) {
+                    try {
+                        byte[] decodedBytes = android.util.Base64.decode(song.getAlbumArtBase64(), android.util.Base64.DEFAULT);
+                        android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                        albumArtView.setImageBitmap(bitmap);
+                        return;
+                    } catch (Exception ignored) {}
+                }
+                break;
+            }
+        }
+        
+        // Fallback to default image
+        albumArtView.setImageResource(R.drawable.billie_eilish);
+    }
+    
+    private void updateEmptyState() {
+        if (emptyStateView == null || recyclerViewQueue == null) return;
+        
+        boolean isEmpty = queueSongs.isEmpty();
+        emptyStateView.setVisibility(isEmpty ? android.view.View.VISIBLE : android.view.View.GONE);
+        recyclerViewQueue.setVisibility(isEmpty ? android.view.View.GONE : android.view.View.VISIBLE);
     }
 }
