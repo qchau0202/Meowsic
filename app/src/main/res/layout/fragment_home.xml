@@ -27,14 +27,6 @@
                 android:textColor="@color/primary_black"
                 android:textSize="24sp" />
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:id="@+id/btn_add_home"
-                android:src="@drawable/ic_add_24px"
-                android:contentDescription="Menu"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:padding="4dp" />
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
@@ -58,55 +50,71 @@
             android:layout_marginBottom="24dp" />
 
         <!-- Category Cards -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="24dp"
-                android:baselineAligned="false">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:background="@android:color/transparent">
 
-                <!-- Get Chill Card -->
+            <!-- Top 100 Songs Card -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="0dp"
+                android:layout_height="180dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                android:foreground="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
                 <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="160dp"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:gravity="bottom"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:background="@drawable/card_bg_pink"
-                    android:padding="16dp"
-                    android:layout_marginEnd="12dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Top 100 cat songs"
-                        android:background="@color/primary_pink"
-                        android:textColor="@color/primary_white"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <!-- Let's Dance Card -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="160dp"
-                    android:layout_weight="1"
                     android:orientation="vertical"
-                    android:gravity="bottom"
-                    android:background="@drawable/card_bg_blue"
-                    android:padding="16dp"
-                    android:layout_marginStart="12dp">
+                    android:padding="16dp">
 
+                    <!-- Title -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Meowsic newest album"
-                        android:background="@color/primary_blue"
+                        android:background="@android:color/transparent"
+                        android:text="Top 100\nSongs"
                         android:textColor="@color/primary_white"
-                        android:textSize="18sp"
+                        android:textSize="20sp"
                         android:textStyle="bold" />
                 </LinearLayout>
-            </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Newest Album Card -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="0dp"
+                android:layout_height="180dp"
+                android:layout_weight="1"
+                app:cardElevation="0dp"
+                android:foreground="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:background="@drawable/card_bg_blue"
+                    android:padding="16dp">
+                    <!-- Title -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Newest US-UK songs"
+                        android:textColor="@color/primary_white"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:background="@android:color/transparent"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
 
         <!-- New Collection Section -->
         <LinearLayout
@@ -146,8 +154,7 @@
                         <ImageView
                             android:layout_width="120dp"
                             android:layout_height="120dp"
-                            android:src="@drawable/billie_eilish"
-                            android:contentDescription="Album Art"
+                            android:src="@drawable/meowsic_black_icon"
                             android:scaleType="centerCrop"
                             android:layout_marginBottom="8dp" />
 
@@ -159,7 +166,6 @@
                             android:background="@color/card_shadow_bg"
                             android:textSize="14sp"
                             android:textStyle="bold"
-                            android:maxLines="2"
                             android:ellipsize="end" />
 
                         <TextView
@@ -185,7 +191,7 @@
                         <ImageView
                             android:layout_width="120dp"
                             android:layout_height="120dp"
-                            android:src="@drawable/cat_profile"
+                            android:src="@drawable/meowsic_black_icon"
                             android:contentDescription="Album Art"
                             android:scaleType="centerCrop"
                             android:layout_marginBottom="8dp" />
@@ -224,7 +230,7 @@
                         <ImageView
                             android:layout_width="120dp"
                             android:layout_height="120dp"
-                            android:src="@drawable/login_illustration"
+                            android:src="@drawable/meowsic_black_icon"
                             android:contentDescription="Album Art"
                             android:scaleType="centerCrop"
                             android:layout_marginBottom="8dp" />
@@ -292,7 +298,59 @@
             </HorizontalScrollView>
         </LinearLayout>
 
-        
+        <!-- Recently Played Section -->
+        <LinearLayout
+            android:id="@+id/recently_played_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="24dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Recently Played"
+                    android:textColor="@color/primary_black"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/btn_clear_recent"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_menu_24px"
+                    android:contentDescription="Clear Recent"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    app:tint="@color/primary_grey" />
+            </LinearLayout>
+
+            <!-- Empty state message -->
+            <TextView
+                android:id="@+id/recently_played_empty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No songs played yet. Start listening to see your recent tracks here!"
+                android:textColor="@color/primary_grey"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:padding="24dp"
+                android:visibility="gone" />
+
+            <!-- RecyclerView for recently played songs -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_recently_played"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false" />
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>

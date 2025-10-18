@@ -5,74 +5,75 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:background="@drawable/dialog_background"
-    android:padding="24dp">
+    android:padding="16dp">
 
     <!-- Header -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Song Options"
+        android:text="Playlist Options"
         android:textColor="@color/primary_black"
-        android:textSize="20sp"
+        android:textSize="18sp"
         android:textStyle="bold"
-        android:gravity="center"
-        android:layout_marginBottom="32dp" />
+        android:layout_marginBottom="16dp"
+        android:gravity="center" />
 
-    <!-- Add to Playlist Option -->
+    <!-- Add Songs Option -->
     <LinearLayout
-        android:id="@+id/option_add_to_playlist"
+        android:id="@+id/option_add_songs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center_vertical"
+        android:padding="12dp"
         android:background="?attr/selectableItemBackground"
-        android:padding="16dp"
-        android:layout_marginBottom="16dp">
+        android:gravity="center_vertical">
 
         <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@drawable/ic_playlist_add_24px"
-            android:contentDescription="Add to Playlist"
+            android:src="@drawable/ic_add_24px"
             app:tint="@color/primary_black"
+            android:background="@android:color/transparent"
             android:layout_marginEnd="16dp" />
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Add to playlist"
+            android:text="Add Songs"
             android:textColor="@color/primary_black"
+            android:background="@android:color/transparent"
             android:textSize="16sp" />
-
     </LinearLayout>
 
-    <!-- Playback Speed Option -->
+    <!-- Remove Songs Option -->
     <LinearLayout
-        android:id="@+id/option_playback_speed"
+        android:id="@+id/option_remove_songs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center_vertical"
+        android:padding="12dp"
         android:background="?attr/selectableItemBackground"
-        android:padding="16dp"
-        android:layout_marginBottom="16dp">
+        android:gravity="center_vertical"
+        android:layout_marginTop="4dp">
 
         <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@drawable/ic_playbackspeed_24px"
-            android:contentDescription="Playback Speed"
+            android:src="@drawable/ic_playlist_remove_24px"
             app:tint="@color/primary_black"
+            android:background="@android:color/transparent"
             android:layout_marginEnd="16dp" />
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Playback speed"
+            android:text="Remove Songs"
             android:textColor="@color/primary_black"
+            android:background="@android:color/transparent"
             android:textSize="16sp" />
-
     </LinearLayout>
+
 </LinearLayout>
+

@@ -12,7 +12,7 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <!-- Header with Title and Menu -->
+        <!-- Header with Title and Actions -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -30,13 +30,64 @@
                 android:textSize="24sp"
                 android:textStyle="bold" />
 
+            <!-- Menu Button -->
             <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_menu"
+                android:id="@+id/btn_menu_playlist"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_more_vertical_24px"
                 android:contentDescription="Menu"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:padding="4dp" />
+                android:padding="4dp"
+                app:tint="@color/primary_black" />
+        </LinearLayout>
+
+        <!-- Selection Toolbar (hidden by default) -->
+        <LinearLayout
+            android:id="@+id/selection_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="20dp"
+            android:visibility="gone">
+
+            <!-- Cancel Button -->
+            <ImageView
+                android:id="@+id/btn_cancel_selection"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_close_24px"
+                android:contentDescription="Cancel"
+                android:background="@android:color/transparent"
+                android:padding="4dp"
+                app:tint="@color/primary_black"
+                android:layout_marginEnd="12dp" />
+
+            <!-- Selection Count -->
+            <TextView
+                android:id="@+id/selection_count"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="0 selected"
+                android:textColor="@color/primary_black"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <!-- Remove Button -->
+            <TextView
+                android:id="@+id/btn_remove_selected"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Remove"
+                android:textColor="@color/primary_pink"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="8dp"
+                android:clickable="true"
+                android:focusable="true" />
         </LinearLayout>
 
         <!-- Search Bar Container -->
@@ -60,6 +111,18 @@
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="16dp" />
+
+            <!-- Empty State -->
+            <TextView
+                android:id="@+id/empty_state_playlist"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No songs in this playlist.\nTap + to add songs."
+                android:textColor="@color/primary_grey"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:padding="32dp"
+                android:visibility="gone" />
 
             <!-- The list of songs -->
             <androidx.recyclerview.widget.RecyclerView

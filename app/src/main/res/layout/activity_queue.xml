@@ -142,6 +142,18 @@
         android:textStyle="bold"
         android:layout_marginBottom="12dp"/>
 
+    <!-- Empty state message -->
+    <TextView
+        android:id="@+id/queue_empty_state"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:text="No songs in queue"
+        android:textColor="@color/primary_grey"
+        android:textSize="16sp"
+        android:gravity="center"
+        android:visibility="gone"/>
+
     <!-- Queue list -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewQueue"

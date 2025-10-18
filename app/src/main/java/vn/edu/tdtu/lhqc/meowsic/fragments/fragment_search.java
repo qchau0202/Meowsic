@@ -195,16 +195,29 @@ public class fragment_search extends Fragment {
         private String title;
         private String subtitle;
         private String type;
+        private String uriString;
+        private String albumArtBase64;
+        private int imageRes;
         
         public SearchResult(String title, String subtitle, String type) {
+            this(title, subtitle, type, null, null, R.drawable.ic_library_music_24px);
+        }
+        
+        public SearchResult(String title, String subtitle, String type, String uriString, String albumArtBase64, int imageRes) {
             this.title = title;
             this.subtitle = subtitle;
             this.type = type;
+            this.uriString = uriString;
+            this.albumArtBase64 = albumArtBase64;
+            this.imageRes = imageRes;
         }
         
         public String getTitle() { return title; }
         public String getSubtitle() { return subtitle; }
         public String getType() { return type; }
+        public String getUriString() { return uriString; }
+        public String getAlbumArtBase64() { return albumArtBase64; }
+        public int getImageRes() { return imageRes; }
     }
     
     // Custom adapter for search results
@@ -237,35 +250,39 @@ public class fragment_search extends Fragment {
             View view = convertView;
             if (view == null) {
                 LayoutInflater inflater = LayoutInflater.from(context);
-                view = inflater.inflate(R.layout.search_result_item, parent, false);
+                view = inflater.inflate(R.layout.library_item, parent, false);
             }
             
             SearchResult result = results.get(position);
             
-            ImageView icon = view.findViewById(R.id.result_icon);
-            TextView title = view.findViewById(R.id.result_title);
-            TextView subtitle = view.findViewById(R.id.result_subtitle);
+            // Disable clickable/focusable on the root view to allow ListView to handle clicks
+            view.setClickable(false);
+            view.setFocusable(false);
+            
+            ImageView imageView = view.findViewById(R.id.imageItem);
+            TextView title = view.findViewById(R.id.textTitle);
+            TextView subtitle = view.findViewById(R.id.textType);
+            ImageView arrowIcon = view.findViewById(R.id.arrow_icon);
             
             title.setText(result.getTitle());
             subtitle.setText(result.getSubtitle());
             
-            // Set appropriate icon based on type
-            switch (result.getType()) {
-                case "album":
-                    icon.setImageResource(R.drawable.ic_library_music_24px);
-                    break;
-                case "artist":
-                    icon.setImageResource(R.drawable.ic_profile_24px);
-                    break;
-                case "playlist":
-                    icon.setImageResource(R.drawable.ic_home_24px);
-                    break;
-                case "song":
-                    icon.setImageResource(R.drawable.ic_library_music_24px);
-                    break;
-                default:
-                    icon.setImageResource(R.drawable.ic_library_music_24px);
-                    break;
+            // Load album art if available, otherwise use default image
+            if (result.getAlbumArtBase64() != null && !result.getAlbumArtBase64().isEmpty()) {
+                try {
+                    byte[] decodedBytes = android.util.Base64.decode(result.getAlbumArtBase64(), android.util.Base64.DEFAULT);
+                    android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                    imageView.setImageBitmap(bitmap);
+                } catch (Exception e) {
+                    imageView.setImageResource(result.getImageRes());
+                }
+            } else {
+                imageView.setImageResource(result.getImageRes());
+            }
+            
+            // Show/hide arrow based on type (playlists show arrow, songs don't)
+            if (arrowIcon != null) {
+                arrowIcon.setVisibility(result.getType().equalsIgnoreCase("Playlist") ? View.VISIBLE : View.GONE);
             }
             
             return view;

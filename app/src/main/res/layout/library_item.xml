@@ -9,8 +9,17 @@
     android:background="@drawable/library_item_border"
     android:foreground="?attr/selectableItemBackground"
     android:clickable="true"
-    android:focusable="true"
-    >
+    android:focusable="true">
+
+    <!-- Checkbox for selection mode (hidden by default) -->
+    <CheckBox
+        android:id="@+id/checkbox_select"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginEnd="8dp"
+        android:background="@android:color/transparent"
+        android:backgroundTint="@color/primary_pink"/>
 
     <ImageView
         android:id="@+id/imageItem"
@@ -20,20 +29,19 @@
         android:src="@drawable/ic_library_music_24px"
         android:layout_marginEnd="16dp"
         android:background="@android:color/transparent"
-        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CircularImageView"/>
+        />
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_weight="1"
-        >
+        android:layout_weight="1">
 
         <TextView
             android:id="@+id/textTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Playlist title"
+            android:text="Item title"
             android:textSize="16sp"
             android:textStyle="bold"
             android:background="@android:color/transparent"
@@ -43,17 +51,32 @@
             android:id="@+id/textType"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Playlist"
+            android:text="Type"
             android:textSize="14sp"
             android:textColor="@color/primary_grey"
             android:layout_marginTop="2dp"/>
     </LinearLayout>
 
+    <!-- More button (visible for songs only, hidden for playlists) -->
     <ImageView
+        android:id="@+id/btn_more"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_more_vertical_24px"
+        android:contentDescription="More options"
+        android:visibility="gone"
+        android:padding="2dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:focusable="true" />
+
+    <!-- Arrow icon (visible for playlists, hidden for songs) -->
+    <ImageView
+        android:id="@+id/arrow_icon"
         android:layout_width="20dp"
         android:layout_height="20dp"
         android:src="@drawable/ic_arrow_right_24px"
-        android:contentDescription="Play"
-        />
+        android:contentDescription="Navigate"
+        android:visibility="visible" />
 
 </LinearLayout>

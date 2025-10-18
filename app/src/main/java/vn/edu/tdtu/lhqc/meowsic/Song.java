@@ -7,6 +7,7 @@ public class Song {
     private int imageRes;
     private String uriString; // optional: content uri for local audio
     private long createdAt;
+    private String albumArtBase64; // Base64 encoded album art for imported songs
 
     public Song(String title, String artist, int imageRes) {
         this.title = title;
@@ -33,6 +34,17 @@ public class Song {
         this.type = "song";
         this.uriString = uriString;
         this.createdAt = System.currentTimeMillis();
+        this.albumArtBase64 = null;
+    }
+    
+    public Song(String title, String artist, int imageRes, String uriString, String albumArtBase64) {
+        this.title = title;
+        this.artist = artist;
+        this.imageRes = imageRes;
+        this.type = "song";
+        this.uriString = uriString;
+        this.createdAt = System.currentTimeMillis();
+        this.albumArtBase64 = albumArtBase64;
     }
 
     public String getTitle() { return title; }
@@ -41,6 +53,8 @@ public class Song {
     public int getImageRes() { return imageRes; }
     public String getUriString() { return uriString; }
     public long getCreatedAt() { return createdAt; }
+    public String getAlbumArtBase64() { return albumArtBase64; }
+    public boolean hasAlbumArt() { return albumArtBase64 != null && !albumArtBase64.isEmpty(); }
 
     // Setter methods
     public void setTitle(String title) { this.title = title; }
@@ -48,6 +62,7 @@ public class Song {
     public void setType(String type) { this.type = type; }
     public void setImageRes(int imageRes) { this.imageRes = imageRes; }
     public void setUriString(String uriString) { this.uriString = uriString; }
+    public void setAlbumArtBase64(String albumArtBase64) { this.albumArtBase64 = albumArtBase64; }
 
 }
 

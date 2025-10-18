@@ -24,6 +24,7 @@ public class fragment_now_playing extends Fragment {
 
     // UI Components
     private ImageView btnMinimize, btnMenu, btnPrevious, btnPlayPause, btnNext;
+    private ImageView albumArtImage;
     private View upNextCard;
     private TextView songTitle, artistName;
     private TextView currentTimeText, totalTimeText;
@@ -33,6 +34,7 @@ public class fragment_now_playing extends Fragment {
     private String currentSongTitle = "Song";
     private String currentArtistName = "Title";
     private String currentSongUriString = null;
+    private String currentAlbumArtBase64 = null;
     private vn.edu.tdtu.lhqc.meowsic.PlaybackManager.Listener playbackListener;
     private boolean isUserSeeking = false;
     
@@ -61,6 +63,17 @@ public class fragment_now_playing extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
+    
+    public static fragment_now_playing newInstance(String songTitle, String artistName, String songUriString, String albumArtBase64) {
+        fragment_now_playing fragment = new fragment_now_playing();
+        Bundle args = new Bundle();
+        args.putString("song_title", songTitle);
+        args.putString("artist_name", artistName);
+        args.putString("song_uri", songUriString);
+        args.putString("album_art", albumArtBase64);
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -69,6 +82,7 @@ public class fragment_now_playing extends Fragment {
             currentSongTitle = getArguments().getString("song_title", "Song");
             currentArtistName = getArguments().getString("artist_name", "Artist");
             currentSongUriString = getArguments().getString("song_uri", null);
+            currentAlbumArtBase64 = getArguments().getString("album_art", null);
         }
     }
 
@@ -124,6 +138,9 @@ public class fragment_now_playing extends Fragment {
         btnMenu = view.findViewById(R.id.btn_menu);
         upNextCard = view.findViewById(R.id.up_next_card_root);
         
+        // Album art
+        albumArtImage = view.findViewById(R.id.album_art);
+        
         // Song information
         songTitle = view.findViewById(R.id.song_title);
         artistName = view.findViewById(R.id.artist_name);
@@ -144,6 +161,44 @@ public class fragment_now_playing extends Fragment {
         
         // Initialize up next info
         updateUpNextInfo(view);
+        
+        // Load album art
+        loadAlbumArt();
+    }
+    
+    private void loadAlbumArt() {
+        if (albumArtImage == null) return;
+        
+        // Try to get album art from current song
+        if (currentAlbumArtBase64 != null && !currentAlbumArtBase64.isEmpty()) {
+            try {
+                byte[] decodedBytes = android.util.Base64.decode(currentAlbumArtBase64, android.util.Base64.DEFAULT);
+                android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                albumArtImage.setImageBitmap(bitmap);
+                return;
+            } catch (Exception ignored) {}
+        }
+        
+        // If no album art from arguments, try to load from library
+        if (currentSongUriString != null && getContext() != null) {
+            java.util.List<vn.edu.tdtu.lhqc.meowsic.Song> allSongs = vn.edu.tdtu.lhqc.meowsic.SongStore.load(getContext());
+            for (vn.edu.tdtu.lhqc.meowsic.Song song : allSongs) {
+                if (song.getUriString() != null && song.getUriString().equals(currentSongUriString)) {
+                    if (song.hasAlbumArt()) {
+                        try {
+                            byte[] decodedBytes = android.util.Base64.decode(song.getAlbumArtBase64(), android.util.Base64.DEFAULT);
+                            android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                            albumArtImage.setImageBitmap(bitmap);
+                            return;
+                        } catch (Exception ignored) {}
+                    }
+                    break;
+                }
+            }
+        }
+        
+        // Fallback to default image
+        albumArtImage.setImageResource(R.drawable.billie_eilish);
     }
 
     private void setupClickListeners() {
@@ -169,7 +224,7 @@ public class fragment_now_playing extends Fragment {
 
         // Previous button
         btnPrevious.setOnClickListener(v -> {
-            // TODO: Implement previous song functionality
+            vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get().playPrevious();
         });
 
         // Play/Pause button
@@ -179,7 +234,7 @@ public class fragment_now_playing extends Fragment {
 
         // Next button
         btnNext.setOnClickListener(v -> {
-            // TODO: Implement next song functionality
+            vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get().playNext();
         });
 
 

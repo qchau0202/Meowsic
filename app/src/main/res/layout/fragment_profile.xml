@@ -28,14 +28,6 @@
                 android:textColor="@color/primary_black"
                 android:textSize="24sp"
                 android:textStyle="bold" />
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_menu"
-                android:contentDescription="Menu"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:padding="4dp" />
         </LinearLayout>
 
         <!-- Profile Image Section -->
@@ -46,14 +38,34 @@
             android:gravity="center"
             android:layout_marginBottom="12dp">
 
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/profile_image"
+            <!-- Profile Image Container with Edit Overlay -->
+            <FrameLayout
                 android:layout_width="120dp"
                 android:layout_height="120dp"
-                android:src="@drawable/cat_profile"
-                android:scaleType="centerCrop"
-                app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CircularImageView"
-                android:layout_marginBottom="16dp" />
+                android:layout_marginBottom="16dp">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/profile_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/cat_profile"
+                    android:scaleType="centerCrop"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CircularImageView" />
+
+                <!-- Edit Overlay Icon -->
+                <ImageView
+                    android:id="@+id/edit_image_overlay"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:src="@drawable/ic_image_24px"
+                    android:layout_gravity="bottom|end"
+                    android:background="@drawable/circle_background"
+                    android:backgroundTint="@color/primary_pink"
+                    android:padding="8dp"
+                    android:visibility="visible"
+                    android:contentDescription="Change profile image"
+                    app:tint="@color/primary_white" />
+            </FrameLayout>
 
             <TextView
                 android:id="@+id/profile_name"
@@ -90,9 +102,10 @@
                 android:gravity="center">
 
                 <TextView
+                    android:id="@+id/playlists_count"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="10"
+                    android:text="0"
                     android:textColor="@color/primary_black"
                     android:textSize="24sp"
                     android:textStyle="bold" />
@@ -118,9 +131,10 @@
                 android:gravity="center">
 
                 <TextView
+                    android:id="@+id/songs_count"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="205"
+                    android:text="0"
                     android:textColor="@color/primary_black"
                     android:textSize="24sp"
                     android:textStyle="bold" />
@@ -146,9 +160,10 @@
                 android:gravity="center">
 
                 <TextView
+                    android:id="@+id/artists_count"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="12"
+                    android:text="0"
                     android:textColor="@color/primary_black"
                     android:textSize="24sp"
                     android:textStyle="bold" />
@@ -251,70 +266,6 @@
             android:orientation="vertical">
 
             <LinearLayout
-                android:id="@+id/privacy_settings"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:background="?attr/selectableItemBackground"
-                android:padding="16dp"
-                android:layout_marginBottom="8dp">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_profile_24px"
-                    app:tint="@color/primary_grey"
-                    android:layout_marginEnd="16dp" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Privacy Settings"
-                    android:textColor="@color/primary_black"
-                    android:textSize="16sp" />
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_filter"
-                    app:tint="@color/primary_grey" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/download_settings"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:background="?attr/selectableItemBackground"
-                android:padding="16dp"
-                android:layout_marginBottom="8dp">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_library_music_24px"
-                    app:tint="@color/primary_grey"
-                    android:layout_marginEnd="16dp" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Download Settings"
-                    android:textColor="@color/primary_black"
-                    android:textSize="16sp" />
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_filter"
-                    app:tint="@color/primary_grey" />
-            </LinearLayout>
-
-            <LinearLayout
                 android:id="@+id/about_meowsic"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -328,6 +279,7 @@
                     android:layout_height="24dp"
                     android:src="@drawable/ic_home_24px"
                     app:tint="@color/primary_grey"
+                    android:background="@android:color/transparent"
                     android:layout_marginEnd="16dp" />
 
                 <TextView
@@ -336,13 +288,8 @@
                     android:layout_weight="1"
                     android:text="About Meowsic"
                     android:textColor="@color/primary_black"
+                    android:background="@android:color/transparent"
                     android:textSize="16sp" />
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_filter"
-                    app:tint="@color/primary_grey" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

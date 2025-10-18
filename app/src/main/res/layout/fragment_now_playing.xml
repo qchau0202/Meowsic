@@ -185,15 +185,14 @@
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:layout_marginBottom="8dp"
-            android:background="@color/card_shadow_bg">
+            android:background="@android:color/transparent">
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Up Next"
-                android:background="@color/card_shadow_bg"
-                android:textColor="@color/primary_black"
+                android:background="@android:color/transparent"                android:textColor="@color/primary_black"
                 android:textSize="14sp"
                 android:textStyle="bold" />
 
@@ -202,8 +201,7 @@
                 android:layout_height="20dp"
                 android:src="@drawable/ic_menu_24px"
                 android:padding="2dp"
-                android:background="@color/card_shadow_bg"
-                app:tint="@color/primary_black" />
+                android:background="@android:color/transparent"                app:tint="@color/primary_black" />
         </LinearLayout>
 
         <!-- Up next song info -->
@@ -213,7 +211,7 @@
             android:orientation="horizontal"
             android:paddingTop="8dp"
             android:paddingBottom="8dp"
-            android:background="@color/card_shadow_bg">
+            android:background="@android:color/transparent">
 
             <TextView
                 android:id="@+id/up_next_song_title"
@@ -222,8 +220,7 @@
                 android:layout_weight="1"
                 android:text=""
                 android:textColor="@color/primary_black"
-                android:background="@color/card_shadow_bg"
-                android:textSize="14sp"
+                android:background="@android:color/transparent"                android:textSize="14sp"
                 android:visibility="gone" />
 
             <TextView
@@ -232,8 +229,7 @@
                 android:layout_height="wrap_content"
                 android:text=""
                 android:textColor="@color/primary_grey"
-                android:background="@color/card_shadow_bg"
-                android:textSize="14sp"
+                android:background="@android:color/transparent"                android:textSize="14sp"
                 android:layout_marginEnd="12dp"
                 android:visibility="gone" />
         </LinearLayout>
