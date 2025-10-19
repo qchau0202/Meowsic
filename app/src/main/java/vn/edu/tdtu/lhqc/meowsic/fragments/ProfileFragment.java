@@ -31,10 +31,11 @@ import java.io.InputStream;
 
 import vn.edu.tdtu.lhqc.meowsic.R;
 import vn.edu.tdtu.lhqc.meowsic.managers.PlaylistStore;
+import vn.edu.tdtu.lhqc.meowsic.managers.RefreshManager;
 import vn.edu.tdtu.lhqc.meowsic.managers.SongStore;
 import vn.edu.tdtu.lhqc.meowsic.models.Song;
 
-public class fragment_profile extends Fragment {
+public class ProfileFragment extends Fragment implements RefreshManager.RefreshListener {
 
     // UI Components
     private ShapeableImageView profileImage;
@@ -57,7 +58,7 @@ public class fragment_profile extends Fragment {
     // Image picker launcher
     private ActivityResultLauncher<Intent> imagePickerLauncher;
 
-    public fragment_profile() {
+    public ProfileFragment() {
         // Required empty public constructor
     }
     
@@ -97,6 +98,28 @@ public class fragment_profile extends Fragment {
         super.onResume();
         // Update statistics when user returns to profile
         updateStatistics();
+    }
+    
+    @Override
+    public void onStart() {
+        super.onStart();
+        // Register for refresh notifications
+        RefreshManager.addListener(this);
+    }
+    
+    @Override
+    public void onStop() {
+        super.onStop();
+        // Unregister from refresh notifications
+        RefreshManager.removeListener(this);
+    }
+    
+    @Override
+    public void onDataChanged() {
+        // Called when data changes occur - refresh the statistics
+        if (getActivity() != null && isAdded()) {
+            getActivity().runOnUiThread(this::updateStatistics);
+        }
     }
 
     private void initializeViews(View view) {

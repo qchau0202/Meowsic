@@ -9,15 +9,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import vn.edu.tdtu.lhqc.meowsic.R;
-import vn.edu.tdtu.lhqc.meowsic.fragments.fragment_home;
-import vn.edu.tdtu.lhqc.meowsic.fragments.fragment_library;
-import vn.edu.tdtu.lhqc.meowsic.fragments.fragment_now_playing;
-import vn.edu.tdtu.lhqc.meowsic.fragments.fragment_profile;
+import vn.edu.tdtu.lhqc.meowsic.fragments.HomeFragment;
+import vn.edu.tdtu.lhqc.meowsic.fragments.LibraryFragment;
+import vn.edu.tdtu.lhqc.meowsic.fragments.NowPlayingFragment;
+import vn.edu.tdtu.lhqc.meowsic.fragments.ProfileFragment;
 import vn.edu.tdtu.lhqc.meowsic.managers.PlaybackManager;
 import vn.edu.tdtu.lhqc.meowsic.managers.SongStore;
 import vn.edu.tdtu.lhqc.meowsic.models.Song;
 
-public class HomeActivity extends AppCompatActivity implements fragment_now_playing.NowPlayingListener {
+public class HomeActivity extends AppCompatActivity implements NowPlayingFragment.NowPlayingListener {
     private LinearLayout navHomeItem, navLibraryItem, navProfileItem;
     private LinearLayout bottomNavigation;
     private LinearLayout minimizedPlayer;
@@ -43,15 +43,15 @@ public class HomeActivity extends AppCompatActivity implements fragment_now_play
         // load default fragment
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new fragment_home())
+                    .replace(R.id.fragment_container, new HomeFragment())
                     .commit();
             setSelectedNavItem(R.id.nav_home_item);
         }
 
         // Set click listeners for navigation items
-        navHomeItem.setOnClickListener(v -> onNavigationItemClick(R.id.nav_home_item, new fragment_home()));
-        navLibraryItem.setOnClickListener(v -> onNavigationItemClick(R.id.nav_library_item, new fragment_library()));
-        navProfileItem.setOnClickListener(v -> onNavigationItemClick(R.id.nav_profile_item, new fragment_profile()));
+        navHomeItem.setOnClickListener(v -> onNavigationItemClick(R.id.nav_home_item, new HomeFragment()));
+        navLibraryItem.setOnClickListener(v -> onNavigationItemClick(R.id.nav_library_item, new LibraryFragment()));
+        navProfileItem.setOnClickListener(v -> onNavigationItemClick(R.id.nav_profile_item, new ProfileFragment()));
     }
     
     private void initNavigationItems() {
@@ -194,7 +194,7 @@ public class HomeActivity extends AppCompatActivity implements fragment_now_play
         minimizedPlayer.setOnClickListener(v -> {
             PlaybackManager pm = PlaybackManager.get();
             String uriString = pm.getCurrentUri() != null ? pm.getCurrentUri().toString() : null;
-            fragment_now_playing nowPlayingFragment = fragment_now_playing.newInstance(
+            NowPlayingFragment nowPlayingFragment = NowPlayingFragment.newInstance(
                 pm.getCurrentTitle(), 
                 pm.getCurrentArtist(),
                 uriString
@@ -213,7 +213,7 @@ public class HomeActivity extends AppCompatActivity implements fragment_now_play
         return String.format(java.util.Locale.getDefault(), "%d:%02d", m, s);
     }
     
-    private fragment_now_playing getCurrentNowPlayingFragment() {
+    private NowPlayingFragment getCurrentNowPlayingFragment() {
         // Try to find if there's a now playing fragment in the back stack
         // For now, we'll create a new one - you can optimize this later
         return null;

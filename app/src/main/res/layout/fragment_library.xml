@@ -116,7 +116,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/sort"
+                android:src="@drawable/ic_filter_list_24px"
                 android:contentDescription="Sort" />
         </LinearLayout>
 

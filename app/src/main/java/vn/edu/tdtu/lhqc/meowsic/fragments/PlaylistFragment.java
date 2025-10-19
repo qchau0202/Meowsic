@@ -18,18 +18,19 @@ import java.util.List;
 import vn.edu.tdtu.lhqc.meowsic.R;
 import vn.edu.tdtu.lhqc.meowsic.managers.PlaybackManager;
 import vn.edu.tdtu.lhqc.meowsic.managers.QueueManager;
+import vn.edu.tdtu.lhqc.meowsic.managers.RefreshManager;
 import vn.edu.tdtu.lhqc.meowsic.managers.SongStore;
 import vn.edu.tdtu.lhqc.meowsic.models.Song;
 import vn.edu.tdtu.lhqc.meowsic.managers.PlaylistStore;
 import vn.edu.tdtu.lhqc.meowsic.adapters.PlaylistSongAdapter;
 import vn.edu.tdtu.lhqc.meowsic.utils.SongImportUtil;
 
-public class fragment_playlist extends Fragment {
+public class PlaylistFragment extends Fragment implements RefreshManager.RefreshListener {
     private RecyclerView recyclerView;
     private PlaylistSongAdapter songAdapter;
     private TextView playlistTitle, emptyState;
     private ImageView btnMenu;
-    private fragment_search searchFragment;
+    private SearchFragment searchFragment;
     private List<Song> playlistSongs = new ArrayList<>();
     private View selectionToolbar;
     private TextView selectionCount;
@@ -40,12 +41,12 @@ public class fragment_playlist extends Fragment {
     private String playlistName = "Playlist";
     private String playlistDescription = "Description";
 
-    public fragment_playlist() {
+    public PlaylistFragment() {
         // Required empty public constructor
     }
 
-    public static fragment_playlist newInstance(String playlistName, String playlistDescription) {
-        fragment_playlist fragment = new fragment_playlist();
+    public static PlaylistFragment newInstance(String playlistName, String playlistDescription) {
+        PlaylistFragment fragment = new PlaylistFragment();
         Bundle args = new Bundle();
         args.putString("playlist_name", playlistName);
         args.putString("playlist_description", playlistDescription);
@@ -81,6 +82,28 @@ public class fragment_playlist extends Fragment {
         super.onResume();
         // Reload playlist songs when returning to the fragment
         loadPlaylistSongs();
+    }
+    
+    @Override
+    public void onStart() {
+        super.onStart();
+        // Register for refresh notifications
+        RefreshManager.addListener(this);
+    }
+    
+    @Override
+    public void onStop() {
+        super.onStop();
+        // Unregister from refresh notifications
+        RefreshManager.removeListener(this);
+    }
+    
+    @Override
+    public void onDataChanged() {
+        // Called when data changes occur - refresh the playlist
+        if (getActivity() != null && isAdded()) {
+            getActivity().runOnUiThread(this::refreshPlaylistData);
+        }
     }
 
     private void initializeViews(View view) {
@@ -119,16 +142,16 @@ public class fragment_playlist extends Fragment {
         songAdapter.setOnSongClickListener(song -> {
             if (song == null || getActivity() == null) return;
             // Pass URI when available to play the actual file
-            fragment_now_playing target;
+            NowPlayingFragment target;
             if (song.getUriString() != null) {
                 // Start playback via shared manager so minimized player also reflects state
                 try {
                     android.net.Uri uri = android.net.Uri.parse(song.getUriString());
                     PlaybackManager.get().play(requireContext(), uri, song.getTitle(), song.getArtist(), song.getAlbumArtBase64());
                 } catch (Exception ignored) {}
-                target = fragment_now_playing.newInstance(song.getTitle(), song.getArtist(), song.getUriString());
+                target = NowPlayingFragment.newInstance(song.getTitle(), song.getArtist(), song.getUriString());
             } else {
-                target = fragment_now_playing.newInstance(song.getTitle(), song.getArtist());
+                target = NowPlayingFragment.newInstance(song.getTitle(), song.getArtist());
             }
             requireActivity().getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, target)
@@ -154,6 +177,13 @@ public class fragment_playlist extends Fragment {
             songAdapter.updateData(playlistSongs);
         }
         updateEmptyState();
+    }
+    
+    /**
+     * Public method to refresh the playlist data from external calls
+     */
+    public void refreshPlaylistData() {
+        loadPlaylistSongs();
     }
     
     private void updateEmptyState() {
@@ -257,6 +287,10 @@ public class fragment_playlist extends Fragment {
                 if (!selectedSongs.isEmpty()) {
                     PlaylistStore.addSongsToPlaylist(requireContext(), playlistName, selectedSongs);
                     loadPlaylistSongs();
+                    
+                    // Notify all listeners that data has changed
+                    RefreshManager.notifyDataChanged();
+                    
                     android.widget.Toast.makeText(requireContext(), 
                         selectedSongs.size() + " song(s) added to playlist", 
                         android.widget.Toast.LENGTH_SHORT).show();
@@ -363,11 +397,11 @@ public class fragment_playlist extends Fragment {
 
     private void setupSearchFragment() {
         // Create search fragment
-        searchFragment = new fragment_search();
+        searchFragment = new SearchFragment();
 
-        searchFragment.setSearchResultCallback(new fragment_search.SearchResultCallback() {
+        searchFragment.setSearchResultCallback(new SearchFragment.SearchResultCallback() {
             @Override
-            public void onSearchResultSelected(fragment_search.SearchResult result) {
+            public void onSearchResultSelected(SearchFragment.SearchResult result) {
                 // No navigation from dropdown; keep list filtering only
             }
 
@@ -378,10 +412,10 @@ public class fragment_playlist extends Fragment {
             }
 
             @Override
-            public List<fragment_search.SearchResult> getSearchableData() {
-                List<fragment_search.SearchResult> results = new ArrayList<>();
+            public List<SearchFragment.SearchResult> getSearchableData() {
+                List<SearchFragment.SearchResult> results = new ArrayList<>();
                 for (Song s : playlistSongs) {
-                    results.add(new fragment_search.SearchResult(s.getTitle(), s.getArtist(), "song"));
+                    results.add(new SearchFragment.SearchResult(s.getTitle(), s.getArtist(), "song"));
                 }
                 return results;
             }
@@ -612,6 +646,9 @@ public class fragment_playlist extends Fragment {
         targetPlaylistSongs.add(song);
         PlaylistStore.savePlaylistSongs(requireContext(), targetPlaylist, targetPlaylistSongs);
         
+        // Notify all listeners that data has changed
+        RefreshManager.notifyDataChanged();
+        
         android.widget.Toast.makeText(requireContext(), 
             "Added to \"" + targetPlaylist + "\"", 
             android.widget.Toast.LENGTH_SHORT).show();
@@ -658,6 +695,9 @@ public class fragment_playlist extends Fragment {
         if (playlistSongs.isEmpty()) {
             playbackManager.release();
         }
+        
+        // Notify all listeners that data has changed
+        RefreshManager.notifyDataChanged();
         
         android.widget.Toast.makeText(requireContext(), 
             "\"" + song.getTitle() + "\" removed from playlist", 

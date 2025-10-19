@@ -20,10 +20,10 @@ import vn.edu.tdtu.lhqc.meowsic.managers.RecentlyPlayedStore;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link fragment_home#newInstance} factory method to
+ * Use the {@link HomeFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class fragment_home extends Fragment {
+public class HomeFragment extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -35,7 +35,7 @@ public class fragment_home extends Fragment {
     private String mParam2;
 
     // Search fragment
-    private fragment_search searchFragment;
+    private SearchFragment searchFragment;
     
     // Recently played
     private View recentlyPlayedSection;
@@ -44,7 +44,7 @@ public class fragment_home extends Fragment {
     private android.widget.ImageView btnClearRecent;
     private android.widget.TextView recentlyPlayedEmpty;
 
-    public fragment_home() {
+    public HomeFragment() {
         // Required empty public constructor
     }
 
@@ -57,8 +57,8 @@ public class fragment_home extends Fragment {
      * @return A new instance of fragment fragment_home.
      */
     // TODO: Rename and change types and number of parameters
-    public static fragment_home newInstance(String param1, String param2) {
-        fragment_home fragment = new fragment_home();
+    public static HomeFragment newInstance(String param1, String param2) {
+        HomeFragment fragment = new HomeFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -107,12 +107,12 @@ public class fragment_home extends Fragment {
 
     private void setupSearchFragment() {
         // Create search fragment
-        searchFragment = new fragment_search();
+        searchFragment = new SearchFragment();
         
         // Set callback for search results
-        searchFragment.setSearchResultCallback(new fragment_search.SearchResultCallback() {
+        searchFragment.setSearchResultCallback(new SearchFragment.SearchResultCallback() {
             @Override
-            public void onSearchResultSelected(fragment_search.SearchResult result) {
+            public void onSearchResultSelected(SearchFragment.SearchResult result) {
                 // Handle search result selection in home
                 handleHomeSearchResult(result);
             }
@@ -123,7 +123,7 @@ public class fragment_home extends Fragment {
             }
             
             @Override
-            public List<fragment_search.SearchResult> getSearchableData() {
+            public List<SearchFragment.SearchResult> getSearchableData() {
                 // Return the existing home data as searchable results
                 return getHomeSearchableData();
             }
@@ -135,24 +135,24 @@ public class fragment_home extends Fragment {
             .commit();
     }
     
-    private List<fragment_search.SearchResult> getHomeSearchableData() {
+    private List<SearchFragment.SearchResult> getHomeSearchableData() {
         // Convert existing home data to searchable format
-        List<fragment_search.SearchResult> searchableData = new ArrayList<>();
+        List<SearchFragment.SearchResult> searchableData = new ArrayList<>();
         
         // Add the collection items from home
-        searchableData.add(new fragment_search.SearchResult("Meowsic Hits", "Various Artists", "album"));
-        searchableData.add(new fragment_search.SearchResult("Cat Vibes", "Feline Artists", "album"));
-        searchableData.add(new fragment_search.SearchResult("Melody Mix", "Music Producers", "album"));
-        searchableData.add(new fragment_search.SearchResult("Purr-fect Beats", "DJ Meowsic", "album"));
+        searchableData.add(new SearchFragment.SearchResult("Meowsic Hits", "Various Artists", "album"));
+        searchableData.add(new SearchFragment.SearchResult("Cat Vibes", "Feline Artists", "album"));
+        searchableData.add(new SearchFragment.SearchResult("Melody Mix", "Music Producers", "album"));
+        searchableData.add(new SearchFragment.SearchResult("Purr-fect Beats", "DJ Meowsic", "album"));
         
         // Add category cards
-        searchableData.add(new fragment_search.SearchResult("Top 100 cat songs", "Various Artists", "playlist"));
-        searchableData.add(new fragment_search.SearchResult("Meowsic newest album", "Various Artists", "album"));
+        searchableData.add(new SearchFragment.SearchResult("Top 100 cat songs", "Various Artists", "playlist"));
+        searchableData.add(new SearchFragment.SearchResult("Meowsic newest album", "Various Artists", "album"));
         
         return searchableData;
     }
     
-    private void handleHomeSearchResult(fragment_search.SearchResult result) {
+    private void handleHomeSearchResult(SearchFragment.SearchResult result) {
         // Handle search result selection in home context
         switch (result.getType()) {
             case "playlist":
@@ -238,7 +238,7 @@ public class fragment_home extends Fragment {
                     } catch (Exception ignored) {}
                     
                     // Navigate to now playing
-                    fragment_now_playing target = fragment_now_playing.newInstance(
+                    NowPlayingFragment target = NowPlayingFragment.newInstance(
                         song.getTitle(), song.getArtist(), song.getUriString()
                     );
                     requireActivity().getSupportFragmentManager().beginTransaction()

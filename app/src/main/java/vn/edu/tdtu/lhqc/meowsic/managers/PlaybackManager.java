@@ -35,6 +35,13 @@ public final class PlaybackManager {
     private String currentAlbumArt = null;
     private Uri currentUri;
     private Context appContext;
+    
+    // Shuffle and repeat modes
+    private boolean shuffleMode = false;
+    private boolean repeatMode = false;
+    
+    // Playback speed
+    private float playbackSpeed = 1.0f;
 
     private final Runnable progressRunnable = new Runnable() {
         @Override public void run() {
@@ -80,6 +87,7 @@ public final class PlaybackManager {
             mediaPlayer.setDataSource(context, uri);
             mediaPlayer.setOnPreparedListener(mp -> {
                 prepared = true;
+                setPlaybackSpeed(playbackSpeed);
                 mp.start();
                 notifyState();
                 handler.post(progressRunnable);
@@ -87,7 +95,7 @@ public final class PlaybackManager {
             mediaPlayer.setOnCompletionListener(mp -> {
                 notifyState();
                 notifySongCompleted();
-                playNext();  // Auto-play next song when current song completes
+                playNextOnCompletion();  // Auto-play next song when current song completes (handles repeat)
             });
             mediaPlayer.prepareAsync();
         } catch (Exception e) {
@@ -148,7 +156,43 @@ public final class PlaybackManager {
 
     public String getCurrentTitle() { return currentTitle; }
     public String getCurrentArtist() { return currentArtist; }
+    public String getCurrentAlbumArt() { return currentAlbumArt; }
     public Uri getCurrentUri() { return currentUri; }
+    
+    // Shuffle and repeat methods
+    public boolean isShuffleMode() { return shuffleMode; }
+    public boolean isRepeatMode() { return repeatMode; }
+    
+    // Playback speed methods
+    public float getPlaybackSpeed() { return playbackSpeed; }
+    
+    public void setPlaybackSpeed(float speed) {
+        playbackSpeed = speed;
+        if (mediaPlayer != null && prepared) {
+            try {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                    mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed(speed));
+                }
+            } catch (Exception e) {
+                // Speed change not supported on this device/API level
+            }
+        }
+    }
+    
+    public void toggleShuffle() {
+        shuffleMode = !shuffleMode;
+        if (shuffleMode) {
+            // Shuffle the queue when shuffle is enabled
+            shuffleQueue();
+        } else {
+            // When shuffle is disabled, restore original order from library
+            restoreOriginalQueue();
+        }
+    }
+    
+    public void toggleRepeat() {
+        repeatMode = !repeatMode;
+    }
 
     private void notifyState() {
         boolean p = isPlaying();
@@ -167,10 +211,34 @@ public final class PlaybackManager {
      * Play the next song - uses QueueManager if available, otherwise uses library order
      */
     public void playNext() {
+        playNextInternal(false);
+    }
+    
+    /**
+     * Play the next song when current song completes naturally (handles repeat mode)
+     */
+    public void playNextOnCompletion() {
+        playNextInternal(true);
+    }
+    
+    /**
+     * Internal method to handle next song logic
+     * @param fromCompletion true if called from song completion, false if manual skip
+     */
+    private void playNextInternal(boolean fromCompletion) {
         if (appContext == null) return;
         
         // Initialize QueueManager
         QueueManager.getInstance(appContext);
+        
+        // Handle repeat mode - only when song completes naturally
+        if (repeatMode && fromCompletion) {
+            Song currentSong = getCurrentSongFromQueue();
+            if (currentSong != null) {
+                playSong(currentSong);
+                return;
+            }
+        }
         
         // Try to get next song from QueueManager first
         Song nextSong = QueueManager.getNextSong();
@@ -291,6 +359,78 @@ public final class PlaybackManager {
         // Notify listeners that metadata changed (no song)
         notifyMetadata();
         notifyState();
+    }
+    
+    /**
+     * Shuffle the current queue
+     */
+    private void shuffleQueue() {
+        QueueManager.getInstance(appContext);
+        java.util.List<Song> queue = QueueManager.getQueue();
+        if (queue.size() <= 1) return;
+        
+        // Get current song to keep it at the beginning
+        Song currentSong = getCurrentSongFromQueue();
+        int currentIndex = QueueManager.getCurrentIndex();
+        
+        // Create a new shuffled list
+        java.util.List<Song> shuffledQueue = new java.util.ArrayList<>();
+        java.util.List<Song> remainingSongs = new java.util.ArrayList<>(queue);
+        
+        // Add current song first if it exists
+        if (currentSong != null && currentIndex >= 0) {
+            shuffledQueue.add(currentSong);
+            remainingSongs.remove(currentSong);
+        }
+        
+        // Shuffle remaining songs
+        java.util.Collections.shuffle(remainingSongs);
+        shuffledQueue.addAll(remainingSongs);
+        
+        // Set the new queue with current song at index 0
+        QueueManager.setQueue(shuffledQueue, currentSong != null ? 0 : -1);
+    }
+    
+    /**
+     * Restore the original queue order from library when shuffle is disabled
+     */
+    private void restoreOriginalQueue() {
+        QueueManager.getInstance(appContext);
+        Song currentSong = getCurrentSongFromQueue();
+        
+        // Load all songs from library in original order
+        java.util.List<Song> allSongs = SongStore.load(appContext);
+        java.util.List<Song> songQueue = new java.util.ArrayList<>();
+        int currentIndex = -1;
+        String currentUriString = currentUri != null ? currentUri.toString() : null;
+        
+        for (int i = 0; i < allSongs.size(); i++) {
+            Song song = allSongs.get(i);
+            if (song.getUriString() != null) {
+                songQueue.add(song);
+                // Mark current song index
+                if (currentUriString != null && song.getUriString().equals(currentUriString)) {
+                    currentIndex = songQueue.size() - 1;
+                }
+            }
+        }
+        
+        // Set the original queue order
+        QueueManager.setQueue(songQueue, currentIndex);
+    }
+    
+    /**
+     * Get the current song from the queue
+     */
+    private Song getCurrentSongFromQueue() {
+        QueueManager.getInstance(appContext);
+        java.util.List<Song> queue = QueueManager.getQueue();
+        int currentIndex = QueueManager.getCurrentIndex();
+        
+        if (currentIndex >= 0 && currentIndex < queue.size()) {
+            return queue.get(currentIndex);
+        }
+        return null;
     }
 }
 
