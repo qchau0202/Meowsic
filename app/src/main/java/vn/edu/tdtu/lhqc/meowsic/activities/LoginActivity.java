@@ -38,21 +38,38 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String enteredEmail = edtLoginEmail.getText().toString();
-                String enteredPassword = edtLoginPassword.getText().toString();
+                String enteredEmail = edtLoginEmail.getText().toString().trim();
+                String enteredPassword = edtLoginPassword.getText().toString().trim();
 
-                String savedEmail = sharedPreferences.getString("email",null);
-                String savedPassword = sharedPreferences.getString("password", null);
-
+                // Validation
                 if (enteredEmail.isEmpty() || enteredPassword.isEmpty()){
                     Toast.makeText(LoginActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                
+                if (!isValidEmail(enteredEmail)) {
+                    Toast.makeText(LoginActivity.this, "Please enter a valid email address", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                String savedEmail = sharedPreferences.getString("email", null);
+                String savedPassword = sharedPreferences.getString("password", null);
+
+                if (savedEmail == null || savedPassword == null) {
+                    Toast.makeText(LoginActivity.this, "No account found. Please register first.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (enteredEmail.equals(savedEmail) && enteredPassword.equals(savedPassword)){
+                    // Set login state
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putBoolean("isLoggedIn", true);
+                    editor.apply();
+                    
+                    Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
+                    goToMainActivity();
                 } else {
-                    if (enteredEmail.equals(savedEmail) && enteredPassword.equals(savedPassword)){
-                        Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
-                        goToMainActivity();
-                    } else {
-                        Toast.makeText(LoginActivity.this, "Invalid Email or Password", Toast.LENGTH_SHORT).show();
-                    }
+                    Toast.makeText(LoginActivity.this, "Invalid Email or Password", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -70,5 +87,9 @@ public class LoginActivity extends AppCompatActivity {
         Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
         startActivity(intent);
         finish();
+    }
+    
+    private boolean isValidEmail(String email) {
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 }

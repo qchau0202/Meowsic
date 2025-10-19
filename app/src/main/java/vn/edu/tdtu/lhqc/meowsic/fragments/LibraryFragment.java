@@ -52,7 +52,7 @@ public class LibraryFragment extends Fragment implements RefreshManager.RefreshL
     private android.widget.TextView filterEmptyState;
     
     // Favorite card
-    private android.widget.LinearLayout favoriteCard;
+    private androidx.cardview.widget.CardView favoriteCard;
     private android.widget.TextView favoriteCount;
     
     // Search fragment and data
@@ -662,8 +662,9 @@ public class LibraryFragment extends Fragment implements RefreshManager.RefreshL
                 pm.release();
             }
 
-            // Clean up recently played - remove songs that were deleted
+            // Clean up recently played and favorites - remove songs that were deleted
             cleanupRecentlyPlayed(removedUris);
+            cleanupFavorites(removedUris);
 
             // Update storage and UI
             SongStore.save(requireContext(), allLibraryData);
@@ -690,6 +691,24 @@ public class LibraryFragment extends Fragment implements RefreshManager.RefreshL
     private void cleanupRecentlyPlayed(java.util.Set<String> removedUris) {
         if (removedUris.isEmpty()) return;
         RecentlyPlayedStore.removeSongs(requireContext(), removedUris);
+    }
+    
+    private void cleanupFavorites(java.util.Set<String> removedUris) {
+        if (removedUris.isEmpty()) return;
+        
+        // Get current favorites
+        List<Song> favorites = vn.edu.tdtu.lhqc.meowsic.managers.FavoriteStore.load(requireContext());
+        List<Song> updatedFavorites = new ArrayList<>();
+        
+        // Keep only favorites that weren't deleted
+        for (Song favorite : favorites) {
+            if (favorite.getUriString() == null || !removedUris.contains(favorite.getUriString())) {
+                updatedFavorites.add(favorite);
+            }
+        }
+        
+        // Save updated favorites
+        vn.edu.tdtu.lhqc.meowsic.managers.FavoriteStore.save(requireContext(), updatedFavorites);
     }
     
     private boolean allSongsArePlaylistsOnly() {
@@ -967,8 +986,9 @@ public class LibraryFragment extends Fragment implements RefreshManager.RefreshL
         updateEmptyState();
         SongStore.save(requireContext(), allLibraryData);
         
-        // Clean up recently played
+        // Clean up recently played and favorites
         cleanupRecentlyPlayed(urisToRemove);
+        cleanupFavorites(urisToRemove);
         
         // Notify all listeners that data has changed
         RefreshManager.notifyDataChanged();

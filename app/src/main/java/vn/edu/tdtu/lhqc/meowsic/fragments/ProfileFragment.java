@@ -50,10 +50,10 @@ public class ProfileFragment extends Fragment implements RefreshManager.RefreshL
 
     // Profile data
     private boolean isEditMode = false;
-    private static final String PREF_NAME = "profile_prefs";
+    private static final String PREF_NAME = "user_prefs";
     private static final String KEY_PROFILE_IMAGE = "profile_image";
-    private static final String KEY_PROFILE_NAME = "profile_name";
-    private static final String KEY_PROFILE_EMAIL = "profile_email";
+    private static final String KEY_PROFILE_NAME = "name";
+    private static final String KEY_PROFILE_EMAIL = "email";
     
     // Image picker launcher
     private ActivityResultLauncher<Intent> imagePickerLauncher;
@@ -197,11 +197,27 @@ public class ProfileFragment extends Fragment implements RefreshManager.RefreshL
         String newName = editFullname.getText().toString().trim();
         String newEmail = editEmail.getText().toString().trim();
         
+        // Validation
+        if (newName.isEmpty()) {
+            showToast("Name cannot be empty");
+            return;
+        }
+        
+        if (newEmail.isEmpty()) {
+            showToast("Email cannot be empty");
+            return;
+        }
+        
+        if (!isValidEmail(newEmail)) {
+            showToast("Please enter a valid email address");
+            return;
+        }
+        
         if (!newName.isEmpty()) {
             profileName.setText(newName);
         }
         
-        // Save to SharedPreferences
+        // Save to SharedPreferences (user_prefs for consistency)
         SharedPreferences prefs = requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(KEY_PROFILE_NAME, newName);
@@ -213,6 +229,10 @@ public class ProfileFragment extends Fragment implements RefreshManager.RefreshL
 
     private void showToast(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+    }
+    
+    private boolean isValidEmail(String email) {
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
     
     private void openImagePicker() {

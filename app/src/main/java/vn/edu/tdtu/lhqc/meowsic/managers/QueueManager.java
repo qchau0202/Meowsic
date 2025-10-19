@@ -127,6 +127,22 @@ public final class QueueManager {
         instance.removeSongInternal(uri);
     }
     
+    /**
+     * Pop the current song from the queue (remove it completely)
+     */
+    public static void popCurrentSong() {
+        if (instance == null) return;
+        instance.popCurrentSongInternal();
+    }
+    
+    /**
+     * Get the remaining queue (excluding current song)
+     */
+    public static List<Song> getRemainingQueue() {
+        if (instance == null) return new ArrayList<>();
+        return instance.getRemainingQueueInternal();
+    }
+    
     // Internal methods
     
     private void addNextInternal(Song song) {
@@ -235,6 +251,40 @@ public final class QueueManager {
         }
         
         saveQueue();
+    }
+    
+    private void popCurrentSongInternal() {
+        if (queue.isEmpty() || currentIndex < 0 || currentIndex >= queue.size()) return;
+        
+        // Remove the current song from the queue
+        queue.remove(currentIndex);
+        
+        // Adjust current index - if we removed the last song, move to previous
+        if (currentIndex >= queue.size()) {
+            currentIndex = queue.size() - 1;
+        }
+        
+        // If queue becomes empty, reset current index
+        if (queue.isEmpty()) {
+            currentIndex = -1;
+        }
+        
+        saveQueue();
+    }
+    
+    private List<Song> getRemainingQueueInternal() {
+        if (queue.isEmpty() || currentIndex < 0) {
+            return new ArrayList<>(queue);
+        }
+        
+        List<Song> remaining = new ArrayList<>();
+        
+        // Add all songs after the current index
+        for (int i = currentIndex + 1; i < queue.size(); i++) {
+            remaining.add(queue.get(i));
+        }
+        
+        return remaining;
     }
     
     // Persistence methods

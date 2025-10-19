@@ -151,32 +151,43 @@
                 android:visibility="gone"/>
 
             <!-- Favorite Songs Card -->
-            <LinearLayout
+            <androidx.cardview.widget.CardView
                 android:id="@+id/favorite_card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:layout_marginBottom="16dp"
-                android:background="?attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true"
-                android:padding="12dp">
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="@color/primary_white">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:background="@android:color/transparent">
+                    android:padding="16dp"
+                    android:background="?attr/selectableItemBackground">
 
-                    <ImageView
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:src="@drawable/ic_favorite_filled_24px"
-                        android:padding="8dp"
-                        android:layout_marginEnd="16dp"
-                        app:tint="@color/primary_pink"
-                        android:background="@android:color/transparent"/>
+                    <!-- Icon with background circle -->
+                    <FrameLayout
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_marginEnd="16dp">
 
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_favorite_filled_24px"
+                            app:tint="@color/primary_pink"
+                            android:background="@android:color/transparent"/>
+                    </FrameLayout>
+
+                    <!-- Text content -->
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -200,18 +211,19 @@
                             android:text="0 songs"
                             android:textColor="@color/primary_grey"
                             android:background="@android:color/transparent"
-                            android:textSize="12sp"
+                            android:textSize="14sp"
                             android:layout_marginTop="2dp" />
                     </LinearLayout>
 
+                    <!-- Arrow icon -->
                     <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
                         android:src="@drawable/ic_arrow_right_24px"
                         app:tint="@color/primary_grey"
                         android:background="@android:color/transparent"/>
                 </LinearLayout>
-            </LinearLayout>
+            </androidx.cardview.widget.CardView>
             <!-- The list of songs -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerViewSongs"
