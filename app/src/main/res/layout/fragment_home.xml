@@ -348,8 +348,8 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler_recently_played"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false" />
+                android:layout_height="400dp"
+                android:nestedScrollingEnabled="true" />
         </LinearLayout>
 
     </LinearLayout>

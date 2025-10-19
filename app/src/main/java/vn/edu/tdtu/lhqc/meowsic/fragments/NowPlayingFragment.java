@@ -27,7 +27,7 @@ public class NowPlayingFragment extends Fragment {
     }
 
     // UI Components
-    private ImageView btnMinimize, btnMenu, btnPrevious, btnPlayPause, btnNext;
+    private ImageView btnMinimize, btnMenu, btnFavorite, btnPrevious, btnPlayPause, btnNext;
     private ImageView btnShuffle, btnRepeat;
     private ImageView albumArtImage;
     private TextView songTitle, artistName;
@@ -142,6 +142,7 @@ public class NowPlayingFragment extends Fragment {
         // Header buttons
         btnMinimize = view.findViewById(R.id.btn_minimize);
         btnMenu = view.findViewById(R.id.btn_menu);
+         btnFavorite = view.findViewById(R.id.btn_favorite);
         
         // Album art
         albumArtImage = view.findViewById(R.id.album_art);
@@ -272,6 +273,11 @@ public class NowPlayingFragment extends Fragment {
         // Menu button
         btnMenu.setOnClickListener(v -> showPopupMenu(v));
 
+        // Favorite button
+        if (btnFavorite != null) {
+            btnFavorite.setOnClickListener(v -> toggleFavorite());
+        }
+
         // Previous button
         btnPrevious.setOnClickListener(v -> {
             PlaybackManager.get().playPrevious();
@@ -352,6 +358,7 @@ public class NowPlayingFragment extends Fragment {
     private void updateSongInfo() {
         songTitle.setText(currentSongTitle);
         artistName.setText(currentArtistName);
+        updateFavoriteButton();
     }
 
     private void setPlayPauseIcon(boolean playing) {
@@ -381,6 +388,7 @@ public class NowPlayingFragment extends Fragment {
                 artistName.setText(artist);
                 currentSongTitle = title;
                 currentArtistName = artist;
+                updateFavoriteButton();
                 
                 // Update album art when song changes
                 updateAlbumArtForCurrentSong();
@@ -711,5 +719,30 @@ public class NowPlayingFragment extends Fragment {
                 "\"" + currentTitle + "\" added to " + playlistName, 
                 android.widget.Toast.LENGTH_SHORT).show();
         }
+    }
+    
+    private void toggleFavorite() {
+        if (currentSongUriString == null) return;
+        
+        boolean isFavorite = vn.edu.tdtu.lhqc.meowsic.managers.FavoriteStore.isFavorite(requireContext(), currentSongUriString);
+        
+        if (isFavorite) {
+            vn.edu.tdtu.lhqc.meowsic.managers.FavoriteStore.removeSong(requireContext(), currentSongUriString);
+            android.widget.Toast.makeText(requireContext(), "Removed from favorites", android.widget.Toast.LENGTH_SHORT).show();
+        } else {
+            Song currentSong = new Song(currentSongTitle, currentArtistName, R.drawable.meowsic_black_icon, currentSongUriString, currentAlbumArtBase64);
+            vn.edu.tdtu.lhqc.meowsic.managers.FavoriteStore.addSong(requireContext(), currentSong);
+            android.widget.Toast.makeText(requireContext(), "Added to favorites", android.widget.Toast.LENGTH_SHORT).show();
+        }
+        
+        updateFavoriteButton();
+        RefreshManager.notifyDataChanged();
+    }
+    
+    private void updateFavoriteButton() {
+        if (btnFavorite == null || currentSongUriString == null) return;
+        
+        boolean isFavorite = vn.edu.tdtu.lhqc.meowsic.managers.FavoriteStore.isFavorite(requireContext(), currentSongUriString);
+        btnFavorite.setImageResource(isFavorite ? R.drawable.ic_favorite_filled_24px : R.drawable.ic_favorite_24px);
     }
 }

@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:padding="12dp">
 
         <!-- Header with Title and Menu -->
         <LinearLayout
@@ -94,6 +94,7 @@
                 app:cornerRadius="20dp"
                 android:layout_marginStart="6dp" />
         </LinearLayout>
+        
         <LinearLayout
             android:id="@+id/layout_view_sort"
             android:layout_width="match_parent"
@@ -149,6 +150,68 @@
                 android:padding="16dp"
                 android:visibility="gone"/>
 
+            <!-- Favorite Songs Card -->
+            <LinearLayout
+                android:id="@+id/favorite_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="12dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@android:color/transparent">
+
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/ic_favorite_filled_24px"
+                        android:padding="8dp"
+                        android:layout_marginEnd="16dp"
+                        app:tint="@color/primary_pink"
+                        android:background="@android:color/transparent"/>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:background="@android:color/transparent">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Favorite Songs"
+                            android:textColor="@color/primary_black"
+                            android:background="@android:color/transparent"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/favorite_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0 songs"
+                            android:textColor="@color/primary_grey"
+                            android:background="@android:color/transparent"
+                            android:textSize="12sp"
+                            android:layout_marginTop="2dp" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_arrow_right_24px"
+                        app:tint="@color/primary_grey"
+                        android:background="@android:color/transparent"/>
+                </LinearLayout>
+            </LinearLayout>
             <!-- The list of songs -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerViewSongs"

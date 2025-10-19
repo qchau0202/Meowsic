@@ -51,6 +51,10 @@ public class LibraryFragment extends Fragment implements RefreshManager.RefreshL
     private android.widget.TextView emptyState;
     private android.widget.TextView filterEmptyState;
     
+    // Favorite card
+    private android.widget.LinearLayout favoriteCard;
+    private android.widget.TextView favoriteCount;
+    
     // Search fragment and data
     private SearchFragment searchFragment;
     private List<Song> allLibraryData;
@@ -72,6 +76,7 @@ public class LibraryFragment extends Fragment implements RefreshManager.RefreshL
         setupSearchFragment();
         setupAddMenu(view);
         setupViewAndSortButtons();
+        setupFavoriteCard();
 
         // Start with "All" tab selected
         if (songAdapter != null) songAdapter.restoreFullList();
@@ -231,7 +236,10 @@ public class LibraryFragment extends Fragment implements RefreshManager.RefreshL
     public void onDataChanged() {
         // Called when data changes occur - refresh the library
         if (getActivity() != null && isAdded()) {
-            getActivity().runOnUiThread(this::refreshLibraryData);
+            getActivity().runOnUiThread(() -> {
+                refreshLibraryData();
+                updateFavoriteCount();
+            });
         }
     }
     
@@ -247,6 +255,10 @@ public class LibraryFragment extends Fragment implements RefreshManager.RefreshL
         filterEmptyState = view.findViewById(R.id.filter_empty_state);
         btnToggleView = view.findViewById(R.id.btn_toggle_view);
         btnSort = view.findViewById(R.id.btn_sort);
+        
+        // Favorite card
+        favoriteCard = view.findViewById(R.id.favorite_card);
+        favoriteCount = view.findViewById(R.id.favorite_count);
     }
 
     private void setupViewAndSortButtons() {
@@ -267,16 +279,20 @@ public class LibraryFragment extends Fragment implements RefreshManager.RefreshL
             recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
             btnToggleView.setImageResource(R.drawable.ic_grid_view_24px);
         }
+        
+        // Toggle the adapter's view type to use the correct layout
+        if (songAdapter != null) {
+            songAdapter.toggleViewType();
+        }
+        
         recyclerView.setAdapter(songAdapter);
     }
 
-    // 🔹 Hiển thị menu sắp xếp
+    // Hiển thị menu sắp xếp
     private void showSortMenu(View anchor) {
         PopupMenu popupMenu = new PopupMenu(requireContext(), anchor);
         popupMenu.getMenu().add("Sort A → Z");
         popupMenu.getMenu().add("Sort Z → A");
-        popupMenu.getMenu().add("Sort by Date (Newest)");
-        popupMenu.getMenu().add("Sort by Date (Oldest)");
 
         popupMenu.setOnMenuItemClickListener(item -> {
             String title = item.getTitle().toString();
@@ -284,10 +300,6 @@ public class LibraryFragment extends Fragment implements RefreshManager.RefreshL
                 Collections.sort(allLibraryData, Comparator.comparing(Song::getTitle, String.CASE_INSENSITIVE_ORDER));
             } else if (title.contains("Z → A")) {
                 Collections.sort(allLibraryData, (a, b) -> b.getTitle().compareToIgnoreCase(a.getTitle()));
-            } else if (title.contains("Newest")) {
-                Collections.sort(allLibraryData, (a, b) -> Long.compare(b.getCreatedAt(), a.getCreatedAt()));
-            } else if (title.contains("Oldest")) {
-                Collections.sort(allLibraryData, Comparator.comparingLong(Song::getCreatedAt));
             }
             songAdapter.updateData(allLibraryData);
             return true;
@@ -969,5 +981,25 @@ public class LibraryFragment extends Fragment implements RefreshManager.RefreshL
         android.widget.Toast.makeText(requireContext(), 
             "\"" + song.getTitle() + "\" removed", 
             android.widget.Toast.LENGTH_SHORT).show();
+    }
+    
+    private void setupFavoriteCard() {
+        if (favoriteCard != null) {
+            favoriteCard.setOnClickListener(v -> {
+                FavoriteFragment favoriteFragment = FavoriteFragment.newInstance();
+                requireActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, favoriteFragment)
+                    .addToBackStack(null)
+                    .commit();
+            });
+        }
+        updateFavoriteCount();
+    }
+    
+    private void updateFavoriteCount() {
+        if (favoriteCount != null) {
+            int count = vn.edu.tdtu.lhqc.meowsic.managers.FavoriteStore.load(requireContext()).size();
+            favoriteCount.setText(count + " song" + (count != 1 ? "s" : ""));
+        }
     }
 }
