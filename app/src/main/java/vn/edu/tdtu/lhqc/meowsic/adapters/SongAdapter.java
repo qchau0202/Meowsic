@@ -59,8 +59,9 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     @NonNull
     @Override
     public SongViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        int layoutRes = (viewType == 1) ? R.layout.library_item_grid : R.layout.library_item;
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.library_item, parent, false);
+                .inflate(layoutRes, parent, false);
         return new SongViewHolder(view);
     }
 
@@ -241,7 +242,6 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         return isGridView;
     }
 
-    // Nếu bạn muốn inflate layout khác nhau cho grid/list, sửa lại onCreateViewHolder:
     @Override
     public int getItemViewType(int position) {
         return isGridView ? 1 : 0;

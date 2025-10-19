@@ -136,38 +136,66 @@ public class HomeFragment extends Fragment {
     }
     
     private List<SearchFragment.SearchResult> getHomeSearchableData() {
-        // Convert existing home data to searchable format
+        // Convert library data to searchable format (same as LibraryFragment)
         List<SearchFragment.SearchResult> searchableData = new ArrayList<>();
         
-        // Add the collection items from home
-        searchableData.add(new SearchFragment.SearchResult("Meowsic Hits", "Various Artists", "album"));
-        searchableData.add(new SearchFragment.SearchResult("Cat Vibes", "Feline Artists", "album"));
-        searchableData.add(new SearchFragment.SearchResult("Melody Mix", "Music Producers", "album"));
-        searchableData.add(new SearchFragment.SearchResult("Purr-fect Beats", "DJ Meowsic", "album"));
-        
-        // Add category cards
-        searchableData.add(new SearchFragment.SearchResult("Top 100 cat songs", "Various Artists", "playlist"));
-        searchableData.add(new SearchFragment.SearchResult("Meowsic newest album", "Various Artists", "album"));
+        // Add all library songs to searchable data
+        List<Song> allLibraryData = vn.edu.tdtu.lhqc.meowsic.managers.SongStore.load(requireContext());
+        if (allLibraryData != null) {
+            for (Song song : allLibraryData) {
+                searchableData.add(new SearchFragment.SearchResult(
+                    song.getTitle(),
+                    song.getArtist(),
+                    song.getType().toLowerCase(),
+                    song.getUriString(),
+                    song.getAlbumArtBase64(),
+                    song.getImageRes()
+                ));
+            }
+        }
         
         return searchableData;
     }
     
     private void handleHomeSearchResult(SearchFragment.SearchResult result) {
-        // Handle search result selection in home context
+        // Handle search result selection in home context (same as LibraryFragment)
         switch (result.getType()) {
             case "playlist":
-                // Navigate to playlist screen or show playlist content
-                break;
-            case "artist":
-                // Navigate to artist screen or show artist content
-                break;
-            case "album":
-                // Navigate to album screen or show album content
+                // Navigate to playlist screen
+                if (result.getUriString() != null) {
+                    navigateToPlaylist(result.getTitle());
+                }
                 break;
             case "song":
-                // Navigate to song or start playing
+                // Start playing the song if it has a URI
+                if (result.getUriString() != null && getActivity() != null) {
+                    try {
+                        android.net.Uri uri = android.net.Uri.parse(result.getUriString());
+                        PlaybackManager.get().play(
+                            requireContext(), uri, result.getTitle(), result.getSubtitle(), result.getAlbumArtBase64()
+                        );
+                        
+                        // Navigate to now playing
+                        NowPlayingFragment target = NowPlayingFragment.newInstance(
+                            result.getTitle(), result.getSubtitle(), result.getUriString()
+                        );
+                        requireActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragment_container, target)
+                            .addToBackStack(null)
+                            .commit();
+                    } catch (Exception ignored) {}
+                }
                 break;
         }
+    }
+    
+    private void navigateToPlaylist(String playlistName) {
+        // Navigate to playlist fragment
+        PlaylistFragment playlistFragment = PlaylistFragment.newInstance(playlistName, "");
+        requireActivity().getSupportFragmentManager().beginTransaction()
+            .replace(R.id.fragment_container, playlistFragment)
+            .addToBackStack(null)
+            .commit();
     }
     
     private void setupRecentlyPlayed() {
