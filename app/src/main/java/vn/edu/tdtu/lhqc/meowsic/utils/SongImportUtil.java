@@ -1,8 +1,11 @@
-package vn.edu.tdtu.lhqc.meowsic;
+package vn.edu.tdtu.lhqc.meowsic.utils;
 
 import android.content.Context;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
+
+import vn.edu.tdtu.lhqc.meowsic.R;
+import vn.edu.tdtu.lhqc.meowsic.models.Song;
 
 /**
  * Utility class for importing songs from MP3 files

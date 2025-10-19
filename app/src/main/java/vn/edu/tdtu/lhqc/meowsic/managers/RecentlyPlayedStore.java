@@ -1,4 +1,4 @@
-package vn.edu.tdtu.lhqc.meowsic;
+package vn.edu.tdtu.lhqc.meowsic.managers;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -10,11 +10,15 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class SongStore {
-    private static final String PREF = "song_store";
-    private static final String KEY_SONGS = "songs";
+import vn.edu.tdtu.lhqc.meowsic.R;
+import vn.edu.tdtu.lhqc.meowsic.models.Song;
 
-    private SongStore() {}
+public final class RecentlyPlayedStore {
+    private static final String PREF = "recently_played";
+    private static final String KEY_SONGS = "songs";
+    private static final int MAX_RECENT_SONGS = 10; // Keep last 10 songs
+
+    private RecentlyPlayedStore() {}
 
     public static List<Song> load(Context context) {
         SharedPreferences sp = context.getSharedPreferences(PREF, Context.MODE_PRIVATE);
@@ -27,23 +31,21 @@ public final class SongStore {
                 JSONObject o = arr.getJSONObject(i);
                 String title = o.optString("title", "Unknown");
                 String artist = o.optString("artist", "Unknown");
-                String type = o.optString("type", "song");
                 int imageRes = o.optInt("imageRes", R.drawable.meowsic_black_icon);
                 String uriString = o.optString("uri", null);
                 String albumArt = o.optString("albumArt", null);
+                long timestamp = o.optLong("timestamp", System.currentTimeMillis());
+                
                 if (uriString != null && !uriString.isEmpty()) {
                     Song song = new Song(title, artist, imageRes, uriString, albumArt);
-                    song.setType(type);
                     out.add(song);
-                } else {
-                    out.add(new Song(title, artist, type, imageRes));
                 }
             }
         } catch (JSONException ignored) {}
         return out;
     }
 
-    public static void save(Context context, List<Song> songs) {
+    private static void save(Context context, List<Song> songs) {
         JSONArray arr = new JSONArray();
         if (songs != null) {
             for (Song s : songs) {
@@ -51,12 +53,12 @@ public final class SongStore {
                     JSONObject o = new JSONObject();
                     o.put("title", s.getTitle());
                     o.put("artist", s.getArtist());
-                    o.put("type", s.getType());
                     o.put("imageRes", s.getImageRes());
                     String uri = s.getUriString();
                     if (uri != null) o.put("uri", uri);
                     String albumArt = s.getAlbumArtBase64();
                     if (albumArt != null) o.put("albumArt", albumArt);
+                    o.put("timestamp", System.currentTimeMillis());
                     arr.put(o);
                 } catch (JSONException ignored) {}
             }
@@ -65,26 +67,45 @@ public final class SongStore {
         sp.edit().putString(KEY_SONGS, arr.toString()).apply();
     }
 
-    public static void addAllAtTop(Context context, List<Song> newSongs) {
+    // Add a song to recently played, removing duplicates and keeping only recent ones
+    public static void addSong(Context context, Song song) {
+        if (song == null || song.getUriString() == null) return;
+        
         List<Song> existing = load(context);
-        if (newSongs != null && !newSongs.isEmpty()) {
-            existing.addAll(0, newSongs);
-            save(context, existing);
-        }
-    }
-
-    public static void addAtTop(Context context, Song song) {
-        if (song == null) return;
-        List<Song> existing = load(context);
+        
+        // Remove if already exists (to move it to top)
+        existing.removeIf(s -> s.getUriString() != null && s.getUriString().equals(song.getUriString()));
+        
+        // Add to top
         existing.add(0, song);
+        
+        // Keep only the most recent MAX_RECENT_SONGS
+        if (existing.size() > MAX_RECENT_SONGS) {
+            existing = existing.subList(0, MAX_RECENT_SONGS);
+        }
+        
         save(context, existing);
     }
 
-    // Clear all stored songs
+    // Remove specific songs by URI
+    public static void removeSongs(Context context, java.util.Set<String> urisToRemove) {
+        if (urisToRemove == null || urisToRemove.isEmpty()) return;
+        
+        List<Song> existing = load(context);
+        existing.removeIf(song -> 
+            song.getUriString() != null && urisToRemove.contains(song.getUriString())
+        );
+        
+        clear(context);
+        for (Song song : existing) {
+            addSong(context, song);
+        }
+    }
+
+    // Clear all recently played
     public static void clear(Context context) {
         SharedPreferences sp = context.getSharedPreferences(PREF, Context.MODE_PRIVATE);
         sp.edit().clear().apply();
     }
 }
-
 

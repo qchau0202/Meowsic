@@ -12,6 +12,9 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import androidx.fragment.app.Fragment;
 import vn.edu.tdtu.lhqc.meowsic.R;
+import vn.edu.tdtu.lhqc.meowsic.managers.PlaybackManager;
+import vn.edu.tdtu.lhqc.meowsic.managers.SongStore;
+import vn.edu.tdtu.lhqc.meowsic.models.Song;
 
 // Display now playing screen with song information and playback controls
 public class fragment_now_playing extends Fragment {
@@ -25,17 +28,17 @@ public class fragment_now_playing extends Fragment {
     // UI Components
     private ImageView btnMinimize, btnMenu, btnPrevious, btnPlayPause, btnNext;
     private ImageView albumArtImage;
-    private View upNextCard;
     private TextView songTitle, artistName;
     private TextView currentTimeText, totalTimeText;
     private SeekBar progressBar;
+    private View upNextSection;
 
     // Song information
     private String currentSongTitle = "Song";
     private String currentArtistName = "Title";
     private String currentSongUriString = null;
     private String currentAlbumArtBase64 = null;
-    private vn.edu.tdtu.lhqc.meowsic.PlaybackManager.Listener playbackListener;
+    private PlaybackManager.Listener playbackListener;
     private boolean isUserSeeking = false;
     
     // Listener for activity communication
@@ -110,7 +113,7 @@ public class fragment_now_playing extends Fragment {
         updateSongInfo();
         
         // Start playback via PlaybackManager only if it's a new song
-        vn.edu.tdtu.lhqc.meowsic.PlaybackManager pm = vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get();
+        PlaybackManager pm = PlaybackManager.get();
         if (currentSongUriString != null) {
             Uri newUri = Uri.parse(currentSongUriString);
             Uri currentUri = pm.getCurrentUri();
@@ -136,7 +139,6 @@ public class fragment_now_playing extends Fragment {
         // Header buttons
         btnMinimize = view.findViewById(R.id.btn_minimize);
         btnMenu = view.findViewById(R.id.btn_menu);
-        upNextCard = view.findViewById(R.id.up_next_card_root);
         
         // Album art
         albumArtImage = view.findViewById(R.id.album_art);
@@ -155,12 +157,12 @@ public class fragment_now_playing extends Fragment {
         btnPlayPause = view.findViewById(R.id.btn_play_pause);
         btnNext = view.findViewById(R.id.btn_next);
         
+        // Up next section
+        upNextSection = view.findViewById(R.id.up_next_section);
+        
         // Set up progress bar (placeholder values)
         progressBar.setMax(100);
         progressBar.setProgress(0);
-        
-        // Initialize up next info
-        updateUpNextInfo(view);
         
         // Load album art
         loadAlbumArt();
@@ -181,8 +183,8 @@ public class fragment_now_playing extends Fragment {
         
         // If no album art from arguments, try to load from library
         if (currentSongUriString != null && getContext() != null) {
-            java.util.List<vn.edu.tdtu.lhqc.meowsic.Song> allSongs = vn.edu.tdtu.lhqc.meowsic.SongStore.load(getContext());
-            for (vn.edu.tdtu.lhqc.meowsic.Song song : allSongs) {
+            java.util.List<Song> allSongs = SongStore.load(getContext());
+            for (Song song : allSongs) {
                 if (song.getUriString() != null && song.getUriString().equals(currentSongUriString)) {
                     if (song.hasAlbumArt()) {
                         try {
@@ -224,26 +226,28 @@ public class fragment_now_playing extends Fragment {
 
         // Previous button
         btnPrevious.setOnClickListener(v -> {
-            vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get().playPrevious();
+            PlaybackManager.get().playPrevious();
         });
 
         // Play/Pause button
         btnPlayPause.setOnClickListener(v -> {
-            vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get().togglePlayPause();
+            PlaybackManager.get().togglePlayPause();
         });
 
         // Next button
         btnNext.setOnClickListener(v -> {
-            vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get().playNext();
+            PlaybackManager.get().playNext();
         });
 
-
-        // Navigate to full queue when user taps Up Next card
-        if (upNextCard != null) {
-            upNextCard.setOnClickListener(v -> {
+        // Up next section - navigate to queue
+        if (upNextSection != null) {
+            upNextSection.setOnClickListener(v -> {
                 if (getActivity() == null) return;
                 android.content.Intent intent = new android.content.Intent(getActivity(), vn.edu.tdtu.lhqc.meowsic.activities.QueueActivity.class);
-                startActivity(intent);
+                
+                // Add slide animation from bottom to top
+                getActivity().startActivity(intent);
+                getActivity().overridePendingTransition(R.anim.slide_up_from_bottom, R.anim.slide_down_to_top);
             });
         }
 
@@ -252,7 +256,7 @@ public class fragment_now_playing extends Fragment {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
-                    vn.edu.tdtu.lhqc.meowsic.PlaybackManager pm = vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get();
+                    PlaybackManager pm = PlaybackManager.get();
                     int dur = pm.getDuration();
                     if (dur > 0) {
                         int pos = (int)(dur * (progress / 100f));
@@ -271,7 +275,7 @@ public class fragment_now_playing extends Fragment {
             public void onStopTrackingTouch(SeekBar seekBar) {
                 isUserSeeking = false;
                 // Seek to the new position when user releases
-                vn.edu.tdtu.lhqc.meowsic.PlaybackManager pm = vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get();
+                PlaybackManager pm = PlaybackManager.get();
                 int dur = pm.getDuration();
                 if (dur > 0) {
                     int pos = (int)(dur * (seekBar.getProgress() / 100f));
@@ -292,14 +296,14 @@ public class fragment_now_playing extends Fragment {
     }
 
     private void attachPlaybackListener() {
-        vn.edu.tdtu.lhqc.meowsic.PlaybackManager pm = vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get();
+        PlaybackManager pm = PlaybackManager.get();
         
         // Set initial state based on actual playback state
         setPlayPauseIcon(pm.isPlaying());
         updateCurrentTime(pm.getPosition());
         if (totalTimeText != null) totalTimeText.setText(formatTime(pm.getDuration()));
         
-        playbackListener = new vn.edu.tdtu.lhqc.meowsic.PlaybackManager.Listener() {
+        playbackListener = new PlaybackManager.Listener() {
             @Override public void onStateChanged(boolean isPlaying) { setPlayPauseIcon(isPlaying); }
             @Override public void onProgress(int positionMs, int durationMs) {
                 if (!isUserSeeking) {
@@ -313,8 +317,6 @@ public class fragment_now_playing extends Fragment {
                 artistName.setText(artist);
                 currentSongTitle = title;
                 currentArtistName = artist;
-                // Update up next info when song changes
-                if (getView() != null) updateUpNextInfo(getView());
             }
             @Override public void onSongCompleted() {
                 // Auto-next handled by PlaybackManager
@@ -334,48 +336,12 @@ public class fragment_now_playing extends Fragment {
         return String.format(java.util.Locale.getDefault(), "%d:%02d", m, s);
     }
     
-    private void updateUpNextInfo(View view) {
-        if (getContext() == null || view == null) return;
-        
-        // Get all songs from library
-        java.util.List<vn.edu.tdtu.lhqc.meowsic.Song> allSongs = vn.edu.tdtu.lhqc.meowsic.SongStore.load(getContext());
-        
-        // Find the next song (first song that's not the current one)
-        vn.edu.tdtu.lhqc.meowsic.Song nextSong = null;
-        for (vn.edu.tdtu.lhqc.meowsic.Song song : allSongs) {
-            if (song.getUriString() != null && !song.getTitle().equals(currentSongTitle)) {
-                nextSong = song;
-                break;
-            }
-        }
-        
-        // Update UI with next song info or show empty state
-        TextView emptyMessage = view.findViewById(R.id.up_next_empty_message);
-        TextView upNextTitle = view.findViewById(R.id.up_next_song_title);
-        TextView upNextArtist = view.findViewById(R.id.up_next_song_artist);
-        
-        if (nextSong != null) {
-            if (emptyMessage != null) emptyMessage.setVisibility(View.GONE);
-            if (upNextTitle != null) {
-                upNextTitle.setVisibility(View.VISIBLE);
-                upNextTitle.setText(nextSong.getTitle());
-            }
-            if (upNextArtist != null) {
-                upNextArtist.setVisibility(View.VISIBLE);
-                upNextArtist.setText(nextSong.getArtist());
-            }
-        } else {
-            if (emptyMessage != null) emptyMessage.setVisibility(View.VISIBLE);
-            if (upNextTitle != null) upNextTitle.setVisibility(View.GONE);
-            if (upNextArtist != null) upNextArtist.setVisibility(View.GONE);
-        }
-    }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         if (listener != null) listener.setFullscreenMode(false);
-        if (playbackListener != null) vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get().removeListener(playbackListener);
+        if (playbackListener != null) PlaybackManager.get().removeListener(playbackListener);
     }
 
     private void showPopupMenu(View anchor) {

@@ -30,6 +30,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
 import vn.edu.tdtu.lhqc.meowsic.R;
+import vn.edu.tdtu.lhqc.meowsic.managers.PlaylistStore;
+import vn.edu.tdtu.lhqc.meowsic.managers.SongStore;
+import vn.edu.tdtu.lhqc.meowsic.models.Song;
 
 public class fragment_profile extends Fragment {
 
@@ -273,13 +276,13 @@ public class fragment_profile extends Fragment {
         if (getContext() == null) return;
         
         // Load all songs from library
-        java.util.List<vn.edu.tdtu.lhqc.meowsic.Song> allSongs = vn.edu.tdtu.lhqc.meowsic.SongStore.load(getContext());
+        java.util.List<Song> allSongs = SongStore.load(getContext());
         
         // Count songs (items with URI)
         int songCount = 0;
         java.util.Set<String> uniqueArtists = new java.util.HashSet<>();
         
-        for (vn.edu.tdtu.lhqc.meowsic.Song song : allSongs) {
+        for (Song song : allSongs) {
             if (song.getUriString() != null) {
                 songCount++;
                 // Add artist to set for unique count
@@ -290,7 +293,7 @@ public class fragment_profile extends Fragment {
         }
         
         // Count playlists from PlaylistStore
-        java.util.List<String> playlists = vn.edu.tdtu.lhqc.meowsic.PlaylistStore.getAllPlaylistNames(getContext());
+        java.util.List<String> playlists = PlaylistStore.getAllPlaylistNames(getContext());
         int playlistCount = playlists.size();
         
         // Update UI
