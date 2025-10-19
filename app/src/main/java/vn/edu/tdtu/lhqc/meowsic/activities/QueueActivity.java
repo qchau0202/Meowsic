@@ -58,6 +58,8 @@ public class QueueActivity extends AppCompatActivity implements RefreshManager.R
         super.onStart();
         // Register for refresh notifications
         RefreshManager.addListener(this);
+        // Refresh queue to ensure current song is excluded
+        refreshQueue();
     }
     
     @Override
@@ -209,39 +211,20 @@ public class QueueActivity extends AppCompatActivity implements RefreshManager.R
         // Clear and reload queue
         queueSongs.clear();
         
-        // Initialize QueueManager and get the queue
-        QueueManager.getInstance(this);
-        List<Song> queueFromManager = QueueManager.getQueue();
-        
         // Get current playing song URI to exclude it
         PlaybackManager pm = PlaybackManager.get();
         android.net.Uri currentUri = pm.getCurrentUri();
         String currentUriString = (currentUri != null) ? currentUri.toString() : null;
-        int currentQueueIndex = QueueManager.getCurrentIndex();
         
-        // If queue is empty or very small, load all songs from library
-        if (queueFromManager.isEmpty() || queueFromManager.size() <= 1) {
-            // Load all songs from library
-            List<Song> allSongs = SongStore.load(this);
-            for (Song song : allSongs) {
-                if (song.getUriString() != null) {
-                    // Skip the currently playing song
-                    if (currentUriString != null && song.getUriString().equals(currentUriString)) {
-                        continue;
-                    }
-                    queueSongs.add(song);
+        // Load all songs from library
+        List<Song> allSongs = SongStore.load(this);
+        for (Song song : allSongs) {
+            if (song.getUriString() != null) {
+                // Skip the currently playing song
+                if (currentUriString != null && song.getUriString().equals(currentUriString)) {
+                    continue;
                 }
-            }
-        } else {
-            // Add all songs from queue except the currently playing one
-            for (int i = 0; i < queueFromManager.size(); i++) {
-                // Skip the current song (at currentQueueIndex)
-                if (i == currentQueueIndex) continue;
-                
-                Song song = queueFromManager.get(i);
-                if (song.getUriString() != null) {
-                    queueSongs.add(song);
-                }
+                queueSongs.add(song);
             }
         }
     }

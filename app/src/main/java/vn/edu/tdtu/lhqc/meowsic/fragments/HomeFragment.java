@@ -43,6 +43,9 @@ public class HomeFragment extends Fragment {
     private SongAdapter recentlyPlayedAdapter;
     private android.widget.ImageView btnClearRecent;
     private android.widget.TextView recentlyPlayedEmpty;
+    
+    // User name display
+    private android.widget.TextView userNameText;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -103,6 +106,23 @@ public class HomeFragment extends Fragment {
         recyclerRecentlyPlayed = view.findViewById(R.id.recycler_recently_played);
         btnClearRecent = view.findViewById(R.id.btn_clear_recent);
         recentlyPlayedEmpty = view.findViewById(R.id.recently_played_empty);
+        
+        // Initialize user name display
+        userNameText = view.findViewById(R.id.user_name_text);
+        loadUserName();
+    }
+    
+    private void loadUserName() {
+        if (userNameText == null) return;
+        
+        android.content.SharedPreferences sharedPreferences = requireContext().getSharedPreferences("user_prefs", android.content.Context.MODE_PRIVATE);
+        String userName = sharedPreferences.getString("name", "User");
+        
+        if (userName != null && !userName.isEmpty()) {
+            userNameText.setText(userName);
+        } else {
+            userNameText.setText("User");
+        }
     }
 
     private void setupSearchFragment() {

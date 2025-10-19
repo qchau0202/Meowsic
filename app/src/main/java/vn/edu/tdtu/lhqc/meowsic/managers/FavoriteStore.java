@@ -43,7 +43,7 @@ public final class FavoriteStore {
         return out;
     }
 
-    private static void save(Context context, List<Song> songs) {
+    public static void save(Context context, List<Song> songs) {
         JSONArray arr = new JSONArray();
         if (songs != null) {
             for (Song s : songs) {

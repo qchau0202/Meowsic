@@ -37,29 +37,53 @@ public class RegisterActivity extends AppCompatActivity {
         btnRegister.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                String name = edtRegisterName.getText().toString();
-                String email = edtRegisterEmail.getText().toString();
-                String password = edtRegisterPassword.getText().toString();
+                String name = edtRegisterName.getText().toString().trim();
+                String email = edtRegisterEmail.getText().toString().trim();
+                String password = edtRegisterPassword.getText().toString().trim();
 
+                // Validation
                 if(name.isEmpty() || email.isEmpty() || password.isEmpty()){
-                    Toast.makeText(RegisterActivity.this, "Please fill in all fields,", Toast.LENGTH_SHORT).show();
-                } else {
-                    SharedPreferences sharedPreferences = getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-
-                    editor.putString("name", name);
-                    editor.putString("email", email);
-                    editor.putString("password", password);
-
-                    editor.apply();
-
-                    Toast.makeText(RegisterActivity.this, "Register Successfully", Toast.LENGTH_SHORT).show();
-
-                    Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                    startActivity(intent);
-
-                    finish();
+                    Toast.makeText(RegisterActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+                    return;
                 }
+                
+                if(name.length() < 2) {
+                    Toast.makeText(RegisterActivity.this, "Name must be at least 2 characters", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                
+                if(!isValidEmail(email)) {
+                    Toast.makeText(RegisterActivity.this, "Please enter a valid email address", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                
+                if(password.length() < 6) {
+                    Toast.makeText(RegisterActivity.this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // Check if user already exists
+                SharedPreferences sharedPreferences = getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
+                String existingEmail = sharedPreferences.getString("email", null);
+                
+                if(existingEmail != null && existingEmail.equals(email)) {
+                    Toast.makeText(RegisterActivity.this, "An account with this email already exists", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // Save user data
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("name", name);
+                editor.putString("email", email);
+                editor.putString("password", password); // Note: In production, hash this password
+                editor.putBoolean("isLoggedIn", false);
+                editor.apply();
+
+                Toast.makeText(RegisterActivity.this, "Registration successful! Please login", Toast.LENGTH_SHORT).show();
+
+                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
             }
         });
         tvNavigateToLogin.setOnClickListener(new View.OnClickListener() {
@@ -69,5 +93,9 @@ public class RegisterActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+    
+    private boolean isValidEmail(String email) {
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 }
