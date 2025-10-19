@@ -13,11 +13,12 @@ import android.widget.TextView;
 import androidx.fragment.app.Fragment;
 import vn.edu.tdtu.lhqc.meowsic.R;
 import vn.edu.tdtu.lhqc.meowsic.managers.PlaybackManager;
+import vn.edu.tdtu.lhqc.meowsic.managers.RefreshManager;
 import vn.edu.tdtu.lhqc.meowsic.managers.SongStore;
 import vn.edu.tdtu.lhqc.meowsic.models.Song;
 
 // Display now playing screen with song information and playback controls
-public class fragment_now_playing extends Fragment {
+public class NowPlayingFragment extends Fragment {
 
     // Interface for communicating with the activity
     public interface NowPlayingListener {
@@ -27,9 +28,11 @@ public class fragment_now_playing extends Fragment {
 
     // UI Components
     private ImageView btnMinimize, btnMenu, btnPrevious, btnPlayPause, btnNext;
+    private ImageView btnShuffle, btnRepeat;
     private ImageView albumArtImage;
     private TextView songTitle, artistName;
     private TextView currentTimeText, totalTimeText;
+    private TextView currentSpeedText;
     private SeekBar progressBar;
     private View upNextSection;
 
@@ -44,12 +47,12 @@ public class fragment_now_playing extends Fragment {
     // Listener for activity communication
     private NowPlayingListener listener;
 
-    public fragment_now_playing() {
+    public NowPlayingFragment() {
         // empty constructor
     }
 
-    public static fragment_now_playing newInstance(String songTitle, String artistName) {
-        fragment_now_playing fragment = new fragment_now_playing();
+    public static NowPlayingFragment newInstance(String songTitle, String artistName) {
+        NowPlayingFragment fragment = new NowPlayingFragment();
         Bundle args = new Bundle();
         args.putString("song_title", songTitle);
         args.putString("artist_name", artistName);
@@ -57,8 +60,8 @@ public class fragment_now_playing extends Fragment {
         return fragment;
     }
 
-    public static fragment_now_playing newInstance(String songTitle, String artistName, String songUriString) {
-        fragment_now_playing fragment = new fragment_now_playing();
+    public static NowPlayingFragment newInstance(String songTitle, String artistName, String songUriString) {
+        NowPlayingFragment fragment = new NowPlayingFragment();
         Bundle args = new Bundle();
         args.putString("song_title", songTitle);
         args.putString("artist_name", artistName);
@@ -67,8 +70,8 @@ public class fragment_now_playing extends Fragment {
         return fragment;
     }
     
-    public static fragment_now_playing newInstance(String songTitle, String artistName, String songUriString, String albumArtBase64) {
-        fragment_now_playing fragment = new fragment_now_playing();
+    public static NowPlayingFragment newInstance(String songTitle, String artistName, String songUriString, String albumArtBase64) {
+        NowPlayingFragment fragment = new NowPlayingFragment();
         Bundle args = new Bundle();
         args.putString("song_title", songTitle);
         args.putString("artist_name", artistName);
@@ -156,9 +159,14 @@ public class fragment_now_playing extends Fragment {
         btnPrevious = view.findViewById(R.id.btn_previous);
         btnPlayPause = view.findViewById(R.id.btn_play_pause);
         btnNext = view.findViewById(R.id.btn_next);
+        btnShuffle = view.findViewById(R.id.btn_shuffle);
+        btnRepeat = view.findViewById(R.id.btn_repeat);
         
         // Up next section
         upNextSection = view.findViewById(R.id.up_next_section);
+        
+        // Speed display
+        currentSpeedText = view.findViewById(R.id.current_speed_text);
         
         // Set up progress bar (placeholder values)
         progressBar.setMax(100);
@@ -166,6 +174,11 @@ public class fragment_now_playing extends Fragment {
         
         // Load album art
         loadAlbumArt();
+        
+        // Initialize button states
+        updateShuffleButton();
+        updateRepeatButton();
+        updateSpeedDisplay();
     }
     
     private void loadAlbumArt() {
@@ -200,6 +213,41 @@ public class fragment_now_playing extends Fragment {
         }
         
         // Fallback to default image
+        albumArtImage.setImageResource(R.drawable.billie_eilish);
+    }
+    
+    /**
+     * Update album art for the currently playing song
+     */
+    private void updateAlbumArtForCurrentSong() {
+        if (albumArtImage == null || getContext() == null) return;
+        
+        PlaybackManager pm = PlaybackManager.get();
+        Uri currentUri = pm.getCurrentUri();
+        
+        if (currentUri == null) {
+            // No song playing, use default image
+            albumArtImage.setImageResource(R.drawable.billie_eilish);
+            return;
+        }
+        
+        // Find the current song in the library and load its album art
+        java.util.List<Song> allSongs = SongStore.load(getContext());
+        for (Song song : allSongs) {
+            if (song.getUriString() != null && song.getUriString().equals(currentUri.toString())) {
+                if (song.hasAlbumArt()) {
+                    try {
+                        byte[] decodedBytes = android.util.Base64.decode(song.getAlbumArtBase64(), android.util.Base64.DEFAULT);
+                        android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                        albumArtImage.setImageBitmap(bitmap);
+                        return;
+                    } catch (Exception ignored) {}
+                }
+                break;
+            }
+        }
+        
+        // Fallback to default image if no album art found
         albumArtImage.setImageResource(R.drawable.billie_eilish);
     }
 
@@ -238,6 +286,22 @@ public class fragment_now_playing extends Fragment {
         btnNext.setOnClickListener(v -> {
             PlaybackManager.get().playNext();
         });
+
+        // Shuffle button
+        if (btnShuffle != null) {
+            btnShuffle.setOnClickListener(v -> {
+                PlaybackManager.get().toggleShuffle();
+                updateShuffleButton();
+            });
+        }
+
+        // Repeat button
+        if (btnRepeat != null) {
+            btnRepeat.setOnClickListener(v -> {
+                PlaybackManager.get().toggleRepeat();
+                updateRepeatButton();
+            });
+        }
 
         // Up next section - navigate to queue
         if (upNextSection != null) {
@@ -317,6 +381,9 @@ public class fragment_now_playing extends Fragment {
                 artistName.setText(artist);
                 currentSongTitle = title;
                 currentArtistName = artist;
+                
+                // Update album art when song changes
+                updateAlbumArtForCurrentSong();
             }
             @Override public void onSongCompleted() {
                 // Auto-next handled by PlaybackManager
@@ -363,8 +430,8 @@ public class fragment_now_playing extends Fragment {
         // Set up click listeners
         if (optionAddToPlaylist != null) {
             optionAddToPlaylist.setOnClickListener(v -> {
-                // TODO: Implement add to playlist functionality
                 dialog.dismiss();
+                showPlaylistSelectionDialog();
             });
         }
         
@@ -400,13 +467,19 @@ public class fragment_now_playing extends Fragment {
         com.google.android.material.button.MaterialButton speed2x = speedDialog.findViewById(R.id.speed_2x);
         com.google.android.material.button.MaterialButton btnClose = speedDialog.findViewById(R.id.btn_close_speed);
         
-        // Helper method to convert progress to speed
-        final float[] getSpeedFromProgress = new float[1];
-        getSpeedFromProgress[0] = 0.25f + (speedSlider.getProgress() * 0.25f);
+        // Get current playback speed and set initial values
+        float currentSpeed = PlaybackManager.get().getPlaybackSpeed();
+        int currentProgress = (int) ((currentSpeed - 0.25f) / 0.25f);
+        currentProgress = Math.max(0, Math.min(7, currentProgress));
+        
+        // Set initial slider position
+        if (speedSlider != null) {
+            speedSlider.setProgress(currentProgress);
+        }
         
         // Update speed value text initially
         if (speedValueText != null) {
-            speedValueText.setText(String.format(java.util.Locale.getDefault(), "%.2fx", getSpeedFromProgress[0]));
+            speedValueText.setText(String.format(java.util.Locale.getDefault(), "%.2fx", currentSpeed));
         }
         
         // Setup slider listener
@@ -425,7 +498,10 @@ public class fragment_now_playing extends Fragment {
                 
                 @Override
                 public void onStopTrackingTouch(SeekBar seekBar) {
-                    // TODO: Apply speed to playback
+                    // Apply speed to playback
+                    float speed = 0.25f + (seekBar.getProgress() * 0.25f);
+                    PlaybackManager.get().setPlaybackSpeed(speed);
+                    updateSpeedDisplay();
                 }
             });
         }
@@ -433,25 +509,33 @@ public class fragment_now_playing extends Fragment {
         // Setup preset button listeners
         if (speed05x != null) {
             speed05x.setOnClickListener(v -> {
-                if (speedSlider != null) speedSlider.setProgress(1); // 0.5x = 0.25 + (1 * 0.25)
+                if (speedSlider != null) speedSlider.setProgress(1);
+                PlaybackManager.get().setPlaybackSpeed(0.5f);
+                updateSpeedDisplay();
             });
         }
         
         if (speed1x != null) {
             speed1x.setOnClickListener(v -> {
-                if (speedSlider != null) speedSlider.setProgress(3); // 1.0x = 0.25 + (3 * 0.25)
+                if (speedSlider != null) speedSlider.setProgress(3);
+                PlaybackManager.get().setPlaybackSpeed(1.0f);
+                updateSpeedDisplay();
             });
         }
         
         if (speed15x != null) {
             speed15x.setOnClickListener(v -> {
                 if (speedSlider != null) speedSlider.setProgress(5); // 1.5x = 0.25 + (5 * 0.25)
+                PlaybackManager.get().setPlaybackSpeed(1.5f);
+                updateSpeedDisplay();
             });
         }
         
         if (speed2x != null) {
             speed2x.setOnClickListener(v -> {
                 if (speedSlider != null) speedSlider.setProgress(7); // 2.0x = 0.25 + (7 * 0.25)
+                PlaybackManager.get().setPlaybackSpeed(2.0f);
+                updateSpeedDisplay();
             });
         }
         
@@ -462,5 +546,170 @@ public class fragment_now_playing extends Fragment {
         
         // Show dialog
         speedDialog.show();
+    }
+    
+    /**
+     * Update shuffle button appearance based on current state
+     */
+    private void updateShuffleButton() {
+        if (btnShuffle == null) return;
+        
+        PlaybackManager pm = PlaybackManager.get();
+        boolean isShuffleOn = pm.isShuffleMode();
+        
+        // Change tint color to indicate active state
+        if (isShuffleOn) {
+            btnShuffle.setColorFilter(getResources().getColor(R.color.primary_pink, null));
+        } else {
+            btnShuffle.setColorFilter(getResources().getColor(R.color.secondary_grey, null));
+        }
+    }
+    
+    /**
+     * Update repeat button appearance based on current state
+     */
+    private void updateRepeatButton() {
+        if (btnRepeat == null) return;
+        
+        PlaybackManager pm = PlaybackManager.get();
+        boolean isRepeatOn = pm.isRepeatMode();
+        
+        // Change tint color to indicate active state
+        if (isRepeatOn) {
+            btnRepeat.setColorFilter(getResources().getColor(R.color.primary_pink, null));
+        } else {
+            btnRepeat.setColorFilter(getResources().getColor(R.color.secondary_grey, null));
+        }
+    }
+    
+    /**
+     * Update speed display based on current playback speed
+     */
+    private void updateSpeedDisplay() {
+        if (currentSpeedText != null) {
+            PlaybackManager pm = PlaybackManager.get();
+            float speed = pm.getPlaybackSpeed();
+            if (speed != 1.0f) {
+                currentSpeedText.setText(String.format(java.util.Locale.getDefault(), "%.1fx", speed));
+                currentSpeedText.setVisibility(View.VISIBLE);
+            } else {
+                currentSpeedText.setVisibility(View.GONE);
+            }
+        }
+    }
+    
+    /**
+     * Show playlist selection dialog for adding current song to a playlist
+     */
+    private void showPlaylistSelectionDialog() {
+        android.app.Dialog dialog = new android.app.Dialog(requireContext());
+        dialog.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_select_playlist);
+        dialog.getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+        dialog.getWindow().setLayout(
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        dialog.getWindow().setGravity(android.view.Gravity.CENTER);
+
+        LinearLayout playlistContainer = dialog.findViewById(R.id.playlist_container);
+        TextView noPlaylistsText = dialog.findViewById(R.id.no_playlists_text);
+
+        // Get current song information
+        PlaybackManager pm = PlaybackManager.get();
+        String currentTitle = pm.getCurrentTitle();
+        String currentArtist = pm.getCurrentArtist();
+        android.net.Uri currentUri = pm.getCurrentUri();
+        
+        if (currentTitle == null || currentTitle.isEmpty()) {
+            android.widget.Toast.makeText(requireContext(), "No song is currently playing", android.widget.Toast.LENGTH_SHORT).show();
+            dialog.dismiss();
+            return;
+        }
+
+        // Get all playlists
+        java.util.List<String> playlists = vn.edu.tdtu.lhqc.meowsic.managers.PlaylistStore.getAllPlaylistNames(requireContext());
+
+        if (playlists.isEmpty()) {
+            if (noPlaylistsText != null) {
+                noPlaylistsText.setVisibility(android.view.View.VISIBLE);
+                noPlaylistsText.setText("No playlists available.\nCreate one in the Library.");
+            }
+        } else {
+            if (playlistContainer != null) {
+                for (String playlistName : playlists) {
+                    // Inflate playlist option layout
+                    View playlistOptionView = LayoutInflater.from(requireContext())
+                        .inflate(R.layout.item_playlist_option, playlistContainer, false);
+                    
+                    // Set playlist name
+                    TextView playlistNameText = playlistOptionView.findViewById(R.id.playlist_name);
+                    if (playlistNameText != null) {
+                        playlistNameText.setText(playlistName);
+                    }
+                    
+                    // Set click listener
+                    playlistOptionView.setOnClickListener(v -> {
+                        addCurrentSongToPlaylist(playlistName);
+                        dialog.dismiss();
+                    });
+                    
+                    playlistContainer.addView(playlistOptionView);
+                }
+            }
+        }
+
+        dialog.show();
+    }
+    
+    /**
+     * Add the current playing song to a playlist
+     */
+    private void addCurrentSongToPlaylist(String playlistName) {
+        PlaybackManager pm = PlaybackManager.get();
+        String currentTitle = pm.getCurrentTitle();
+        String currentArtist = pm.getCurrentArtist();
+        android.net.Uri currentUri = pm.getCurrentUri();
+        
+        if (currentTitle == null || currentTitle.isEmpty()) {
+            android.widget.Toast.makeText(requireContext(), "No song is currently playing", android.widget.Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        // Create song object for the current playing song
+        Song currentSong = new Song(
+            currentTitle, 
+            currentArtist != null ? currentArtist : "Unknown", 
+            R.drawable.meowsic_black_icon, 
+            currentUri != null ? currentUri.toString() : null, 
+            pm.getCurrentAlbumArt() // Get album art from PlaybackManager
+        );
+        
+        // Check if song already exists in the playlist
+        java.util.List<Song> existingSongs = vn.edu.tdtu.lhqc.meowsic.managers.PlaylistStore.loadPlaylistSongs(requireContext(), playlistName);
+        boolean songExists = false;
+        for (Song existingSong : existingSongs) {
+            if (existingSong.getUriString() != null && currentUri != null &&
+                existingSong.getUriString().equals(currentUri.toString())) {
+                songExists = true;
+                break;
+            }
+        }
+        
+        if (songExists) {
+            android.widget.Toast.makeText(requireContext(), 
+                "\"" + currentTitle + "\" is already in " + playlistName, 
+                android.widget.Toast.LENGTH_SHORT).show();
+        } else {
+            // Add to playlist
+            vn.edu.tdtu.lhqc.meowsic.managers.PlaylistStore.addSongToPlaylist(requireContext(), playlistName, currentSong);
+            
+            // Notify all listeners that data has changed
+            RefreshManager.notifyDataChanged();
+            
+            android.widget.Toast.makeText(requireContext(), 
+                "\"" + currentTitle + "\" added to " + playlistName, 
+                android.widget.Toast.LENGTH_SHORT).show();
+        }
     }
 }

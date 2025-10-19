@@ -7,7 +7,7 @@
     android:orientation="vertical"
     android:background="@color/primary_white"
     android:padding="24dp"
-    tools:context=".fragments.fragment_now_playing">
+    tools:context=".fragments.NowPlayingFragment">
 
     <!-- Header with Back Button, Title and Menu -->
     <LinearLayout
@@ -233,6 +233,19 @@
             android:layout_margin="10dp"
             android:layout_weight="1"/>
     </LinearLayout>
+    
+    <!-- Playback Speed Display -->
+    <TextView
+        android:id="@+id/current_speed_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="1.0x"
+        android:textColor="@color/primary_grey"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone" />
+    
     <!-- Up Next Section -->
     <LinearLayout
         android:id="@+id/up_next_section"

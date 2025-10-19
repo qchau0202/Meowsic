@@ -25,7 +25,7 @@ import java.util.List;
 
 import vn.edu.tdtu.lhqc.meowsic.R;
 
-public class fragment_search extends Fragment {
+public class SearchFragment extends Fragment {
     
     // Search related views and variables
     private EditText searchInput;
@@ -45,7 +45,7 @@ public class fragment_search extends Fragment {
         List<SearchResult> getSearchableData(); // Method to get existing data for searching
     }
     
-    public fragment_search() {
+    public SearchFragment() {
         // Required empty public constructor
     }
     

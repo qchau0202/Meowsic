@@ -67,39 +67,57 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     @Override
     public void onBindViewHolder(@NonNull SongViewHolder holder, int position) {
         Song song = filteredList.get(position);
-        holder.title.setText(song.getTitle());
-        holder.type.setText(song.getArtist());
         
-        // Load album art if available, otherwise use default image
-        if (song.hasAlbumArt()) {
-            try {
-                byte[] decodedBytes = android.util.Base64.decode(song.getAlbumArtBase64(), android.util.Base64.DEFAULT);
-                android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
-                holder.image.setImageBitmap(bitmap);
-            } catch (Exception e) {
-                holder.image.setImageResource(song.getImageRes());
+        // Handle artist entries specially
+        if (song.getType().equalsIgnoreCase("Artist") && song.getUriString() == null) {
+            // This is an artist entry
+            holder.title.setText(song.getTitle()); // Artist name
+            holder.type.setText("Artist");
+            holder.image.setImageResource(R.drawable.ic_artist_24px); // Use artist icon for artists
+            
+            // Hide more button and arrow for artist entries
+            if (holder.btnMore != null) {
+                holder.btnMore.setVisibility(View.GONE);
+            }
+            if (holder.arrowIcon != null) {
+                holder.arrowIcon.setVisibility(View.GONE);
             }
         } else {
-            holder.image.setImageResource(song.getImageRes());
-        }
-        
-        // Show/hide more button and arrow icon based on item type
-        boolean isSong = song.getUriString() != null && !song.getUriString().isEmpty() 
-                         && !song.getType().equalsIgnoreCase("Playlist");
-        
-        if (holder.btnMore != null) {
-            holder.btnMore.setVisibility(isSong ? View.VISIBLE : View.GONE);
-            if (isSong) {
-                holder.btnMore.setOnClickListener(v -> {
-                    if (onSongMoreClickListener != null) {
-                        onSongMoreClickListener.onSongMoreClick(song, v);
-                    }
-                });
+            // Regular song/playlist entry
+            holder.title.setText(song.getTitle());
+            holder.type.setText(song.getArtist());
+            
+            // Load album art if available, otherwise use default image
+            if (song.hasAlbumArt()) {
+                try {
+                    byte[] decodedBytes = android.util.Base64.decode(song.getAlbumArtBase64(), android.util.Base64.DEFAULT);
+                    android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                    holder.image.setImageBitmap(bitmap);
+                } catch (Exception e) {
+                    holder.image.setImageResource(song.getImageRes());
+                }
+            } else {
+                holder.image.setImageResource(song.getImageRes());
             }
-        }
-        
-        if (holder.arrowIcon != null) {
-            holder.arrowIcon.setVisibility(song.getType().equalsIgnoreCase("Playlist") ? View.VISIBLE : View.GONE);
+            
+            // Show/hide more button and arrow icon based on item type
+            boolean isSong = song.getUriString() != null && !song.getUriString().isEmpty() 
+                             && !song.getType().equalsIgnoreCase("Playlist");
+            
+            if (holder.btnMore != null) {
+                holder.btnMore.setVisibility(isSong ? View.VISIBLE : View.GONE);
+                if (isSong) {
+                    holder.btnMore.setOnClickListener(v -> {
+                        if (onSongMoreClickListener != null) {
+                            onSongMoreClickListener.onSongMoreClick(song, v);
+                        }
+                    });
+                }
+            }
+            
+            if (holder.arrowIcon != null) {
+                holder.arrowIcon.setVisibility(song.getType().equalsIgnoreCase("Playlist") ? View.VISIBLE : View.GONE);
+            }
         }
         
         // Set click listener for the entire item
@@ -123,16 +141,53 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     public void filterByQuery(String query) {
         applyFilters(query);
     }
+    
+    public void filterByArtist(String artistName) {
+        filteredList.clear();
+        for (Song song : fullList) {
+            if (song.getUriString() != null && !song.getUriString().isEmpty() && 
+                !song.getType().equalsIgnoreCase("Playlist") &&
+                song.getArtist() != null && song.getArtist().equalsIgnoreCase(artistName)) {
+                filteredList.add(song);
+            }
+        }
+        notifyDataSetChanged();
+    }
     // Hàm filter để SearchView gọi
     private void applyFilters(String query) {
         filteredList.clear();
-        for (Song song : fullList) {
-            boolean matchType = currentType.equals("All") || song.getType().equalsIgnoreCase(currentType);
-            boolean matchQuery = query.isEmpty() ||
-                    song.getTitle().toLowerCase().contains(query.toLowerCase()) ||
-                    song.getArtist().toLowerCase().contains(query.toLowerCase());
-            if (matchType && matchQuery) {
-                filteredList.add(song);
+        
+        if (currentType.equals("Artist")) {
+            // For artist filter, show unique artists (one entry per artist)
+            java.util.Set<String> uniqueArtists = new java.util.HashSet<>();
+            for (Song song : fullList) {
+                if (song.getUriString() != null && !song.getUriString().isEmpty() && 
+                    !song.getType().equalsIgnoreCase("Playlist")) {
+                    String artist = song.getArtist();
+                    if (artist != null && !artist.isEmpty() && !uniqueArtists.contains(artist)) {
+                        // Check if this artist matches the search query
+                        boolean matchQuery = query.isEmpty() || 
+                            artist.toLowerCase().contains(query.toLowerCase());
+                        if (matchQuery) {
+                            uniqueArtists.add(artist);
+                            // Create a special artist entry
+                            Song artistEntry = new Song(artist, "Artist", song.getImageRes(), null, null);
+                            artistEntry.setType("Artist");
+                            filteredList.add(artistEntry);
+                        }
+                    }
+                }
+            }
+        } else {
+            // For other filters (All, Playlist), use the original logic
+            for (Song song : fullList) {
+                boolean matchType = currentType.equals("All") || song.getType().equalsIgnoreCase(currentType);
+                boolean matchQuery = query.isEmpty() ||
+                        song.getTitle().toLowerCase().contains(query.toLowerCase()) ||
+                        song.getArtist().toLowerCase().contains(query.toLowerCase());
+                if (matchType && matchQuery) {
+                    filteredList.add(song);
+                }
             }
         }
         notifyDataSetChanged();
@@ -192,7 +247,6 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         return isGridView ? 1 : 0;
     }
 
-    // ===== SORT METHODS =====
     public void sortByTitle(boolean ascending) {
         filteredList.sort((s1, s2) -> ascending
                 ? s1.getTitle().compareToIgnoreCase(s2.getTitle())

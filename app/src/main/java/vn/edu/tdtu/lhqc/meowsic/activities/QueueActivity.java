@@ -20,12 +20,13 @@ import java.util.List;
 import vn.edu.tdtu.lhqc.meowsic.R;
 import vn.edu.tdtu.lhqc.meowsic.managers.PlaybackManager;
 import vn.edu.tdtu.lhqc.meowsic.managers.QueueManager;
+import vn.edu.tdtu.lhqc.meowsic.managers.RefreshManager;
 import vn.edu.tdtu.lhqc.meowsic.managers.SongStore;
 import vn.edu.tdtu.lhqc.meowsic.models.Song;
 import vn.edu.tdtu.lhqc.meowsic.adapters.QueueAdapter;
 import android.widget.PopupMenu;
 
-public class QueueActivity extends AppCompatActivity {
+public class QueueActivity extends AppCompatActivity implements RefreshManager.RefreshListener {
 
     private RecyclerView recyclerViewQueue;
     private QueueAdapter queueAdapter;
@@ -50,6 +51,26 @@ public class QueueActivity extends AppCompatActivity {
         initializeHeader();
         setupRecycler();
         setupBackPressedHandler();
+    }
+    
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Register for refresh notifications
+        RefreshManager.addListener(this);
+    }
+    
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // Unregister from refresh notifications
+        RefreshManager.removeListener(this);
+    }
+    
+    @Override
+    public void onDataChanged() {
+        // Called when data changes occur - refresh the queue
+        runOnUiThread(this::refreshQueueData);
     }
 
     private void initializeHeader() {
@@ -155,6 +176,8 @@ public class QueueActivity extends AppCompatActivity {
                 if (titleView != null) {
                     titleView.setText(t != null && !t.isEmpty() ? t : "No song playing");
                 }
+                // Update album art when song changes
+                loadCurrentSongAlbumArt();
                 // Refresh queue list to exclude new current song
                 refreshQueue();
             }
@@ -175,8 +198,15 @@ public class QueueActivity extends AppCompatActivity {
         updateEmptyState();
     }
     
+    /**
+     * Public method to refresh the queue from external calls
+     */
+    public void refreshQueueData() {
+        refreshQueue();
+    }
+    
     private void loadQueueSongs() {
-        // Clear and reload queue from QueueManager
+        // Clear and reload queue
         queueSongs.clear();
         
         // Initialize QueueManager and get the queue
@@ -189,14 +219,29 @@ public class QueueActivity extends AppCompatActivity {
         String currentUriString = (currentUri != null) ? currentUri.toString() : null;
         int currentQueueIndex = QueueManager.getCurrentIndex();
         
-        // Add all songs from queue except the currently playing one
-        for (int i = 0; i < queueFromManager.size(); i++) {
-            // Skip the current song (at currentQueueIndex)
-            if (i == currentQueueIndex) continue;
-            
-            Song song = queueFromManager.get(i);
-            if (song.getUriString() != null) {
-                queueSongs.add(song);
+        // If queue is empty or very small, load all songs from library
+        if (queueFromManager.isEmpty() || queueFromManager.size() <= 1) {
+            // Load all songs from library
+            List<Song> allSongs = SongStore.load(this);
+            for (Song song : allSongs) {
+                if (song.getUriString() != null) {
+                    // Skip the currently playing song
+                    if (currentUriString != null && song.getUriString().equals(currentUriString)) {
+                        continue;
+                    }
+                    queueSongs.add(song);
+                }
+            }
+        } else {
+            // Add all songs from queue except the currently playing one
+            for (int i = 0; i < queueFromManager.size(); i++) {
+                // Skip the current song (at currentQueueIndex)
+                if (i == currentQueueIndex) continue;
+                
+                Song song = queueFromManager.get(i);
+                if (song.getUriString() != null) {
+                    queueSongs.add(song);
+                }
             }
         }
     }

@@ -103,6 +103,15 @@ public final class PlaylistStore {
     public static void addSongToPlaylist(Context context, String playlistName, Song song) {
         if (song == null || playlistName == null) return;
         List<Song> existing = loadPlaylistSongs(context, playlistName);
+        
+        // Check if song already exists in the playlist
+        for (Song existingSong : existing) {
+            if (existingSong.getUriString() != null && song.getUriString() != null &&
+                existingSong.getUriString().equals(song.getUriString())) {
+                return; // Song already exists, don't add duplicate
+            }
+        }
+        
         existing.add(song);
         savePlaylistSongs(context, playlistName, existing);
     }
@@ -116,8 +125,28 @@ public final class PlaylistStore {
     public static void addSongsToPlaylist(Context context, String playlistName, List<Song> songs) {
         if (songs == null || songs.isEmpty() || playlistName == null) return;
         List<Song> existing = loadPlaylistSongs(context, playlistName);
-        existing.addAll(songs);
-        savePlaylistSongs(context, playlistName, existing);
+        
+        // Create a set of existing URIs for efficient lookup
+        java.util.Set<String> existingUris = new java.util.HashSet<>();
+        for (Song existingSong : existing) {
+            if (existingSong.getUriString() != null) {
+                existingUris.add(existingSong.getUriString());
+            }
+        }
+        
+        // Only add songs that don't already exist
+        boolean addedAny = false;
+        for (Song song : songs) {
+            if (song.getUriString() != null && !existingUris.contains(song.getUriString())) {
+                existing.add(song);
+                existingUris.add(song.getUriString()); // Add to set to avoid duplicates within the batch
+                addedAny = true;
+            }
+        }
+        
+        if (addedAny) {
+            savePlaylistSongs(context, playlistName, existing);
+        }
     }
 
     /**
