@@ -6,6 +6,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -48,6 +49,7 @@ public class QueueActivity extends AppCompatActivity {
 
         initializeHeader();
         setupRecycler();
+        setupBackPressedHandler();
     }
 
     private void initializeHeader() {
@@ -120,8 +122,8 @@ public class QueueActivity extends AppCompatActivity {
         }
         
         if (back != null) back.setOnClickListener(v -> {
-            finish();
             // Add slide animation from top to bottom when going back
+            finish();
             overridePendingTransition(R.anim.slide_down_from_top, R.anim.slide_up_to_bottom);
         });
         
@@ -199,11 +201,16 @@ public class QueueActivity extends AppCompatActivity {
         }
     }
     
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        // Add slide animation from top to bottom when going back
-        overridePendingTransition(R.anim.slide_down_from_top, R.anim.slide_up_to_bottom);
+    private void setupBackPressedHandler() {
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // Add slide animation from top to bottom when going back
+                finish();
+                overridePendingTransition(R.anim.slide_down_from_top, R.anim.slide_up_to_bottom);
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(this, callback);
     }
     
     @Override
