@@ -1,8 +1,7 @@
-package vn.edu.tdtu.lhqc.meowsic.ui;
+package vn.edu.tdtu.lhqc.meowsic.utils;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.view.View;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;

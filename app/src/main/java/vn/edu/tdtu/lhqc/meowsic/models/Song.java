@@ -1,4 +1,4 @@
-package vn.edu.tdtu.lhqc.meowsic;
+package vn.edu.tdtu.lhqc.meowsic.models;
 
 public class Song {
     private String title;

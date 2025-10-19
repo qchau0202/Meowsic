@@ -56,11 +56,11 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center"
-        android:layout_marginBottom="12dp">
+        android:layout_marginBottom="24dp">
 
         <ImageView
             android:id="@+id/album_art"
-            android:layout_width="280dp"
+            android:layout_width="380dp"
             android:layout_height="0dp"
             android:layout_margin="4dp"
             android:layout_weight="1"
@@ -74,7 +74,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="18dp"
+        android:layout_marginBottom="24dp"
         android:gravity="center_vertical">
 
         <!-- Song Title and Artist Container -->
@@ -126,7 +126,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginBottom="12dp">
+        android:layout_marginBottom="24dp">
 
         <!-- Time Labels -->
         <LinearLayout
@@ -169,97 +169,13 @@
             android:splitTrack="false" />
     </LinearLayout>
 
-    <!-- Up Next Section -->
-    <LinearLayout
-        android:id="@+id/up_next_card_root"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@drawable/card_shadow_bg"
-        android:padding="12dp"
-        android:layout_marginBottom="12dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="8dp"
-            android:background="@android:color/transparent">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Up Next"
-                android:background="@android:color/transparent"                android:textColor="@color/primary_black"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:src="@drawable/ic_menu_24px"
-                android:padding="2dp"
-                android:background="@android:color/transparent"                app:tint="@color/primary_black" />
-        </LinearLayout>
-
-        <!-- Up next song info -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:background="@android:color/transparent">
-
-            <TextView
-                android:id="@+id/up_next_song_title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text=""
-                android:textColor="@color/primary_black"
-                android:background="@android:color/transparent"                android:textSize="14sp"
-                android:visibility="gone" />
-
-            <TextView
-                android:id="@+id/up_next_song_artist"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=""
-                android:textColor="@color/primary_grey"
-                android:background="@android:color/transparent"                android:textSize="14sp"
-                android:layout_marginEnd="12dp"
-                android:visibility="gone" />
-        </LinearLayout>
-
-        <!-- Placeholder message when no songs in queue -->
-        <TextView
-            android:id="@+id/up_next_empty_message"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="No songs in queue"
-            android:textColor="@color/primary_grey"
-            android:textSize="14sp"
-            android:padding="16dp"
-            android:gravity="center"
-            android:visibility="gone" />
-    </LinearLayout>
-
-    <!-- Up next view -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-
-    </LinearLayout>
     <!-- Playback Controls -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center">
+        android:gravity="center"
+        android:layout_marginBottom="24dp">
 
         <!-- Repeat Button -->
         <ImageView
@@ -316,5 +232,32 @@
             app:tint="@color/secondary_grey"
             android:layout_margin="10dp"
             android:layout_weight="1"/>
+    </LinearLayout>
+    <!-- Up Next Section -->
+    <LinearLayout
+        android:id="@+id/up_next_section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="16dp"
+        android:layout_marginTop="8dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Up next"
+            android:textColor="@color/primary_black"
+            android:background="@android:color/transparent"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_arrow_down_24px"
+            android:background="@android:color/transparent"
+            app:tint="@color/primary_grey"/>
     </LinearLayout>
 </LinearLayout>

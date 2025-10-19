@@ -1,5 +1,4 @@
 package vn.edu.tdtu.lhqc.meowsic.activities;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -14,13 +13,17 @@ import vn.edu.tdtu.lhqc.meowsic.fragments.fragment_home;
 import vn.edu.tdtu.lhqc.meowsic.fragments.fragment_library;
 import vn.edu.tdtu.lhqc.meowsic.fragments.fragment_now_playing;
 import vn.edu.tdtu.lhqc.meowsic.fragments.fragment_profile;
+import vn.edu.tdtu.lhqc.meowsic.managers.PlaybackManager;
+import vn.edu.tdtu.lhqc.meowsic.managers.SongStore;
+import vn.edu.tdtu.lhqc.meowsic.models.Song;
 
 public class HomeActivity extends AppCompatActivity implements fragment_now_playing.NowPlayingListener {
     private LinearLayout navHomeItem, navLibraryItem, navProfileItem;
     private LinearLayout bottomNavigation;
     private LinearLayout minimizedPlayer;
     private int selectedNavItem = R.id.nav_home_item;
-    private vn.edu.tdtu.lhqc.meowsic.PlaybackManager.Listener miniPlayerListener;
+    private PlaybackManager.Listener miniPlayerListener;
+    private boolean isFullscreenMode = false;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,12 +134,14 @@ public class HomeActivity extends AppCompatActivity implements fragment_now_play
         final ImageView miniPlayPause = minimizedPlayer.findViewById(R.id.mini_play_pause);
         final ImageView miniAlbumArt = minimizedPlayer.findViewById(R.id.mini_album_art);
         
-        miniPlayerListener = new vn.edu.tdtu.lhqc.meowsic.PlaybackManager.Listener() {
+        miniPlayerListener = new PlaybackManager.Listener() {
             @Override
             public void onStateChanged(boolean isPlaying) {
                 if (miniPlayPause != null) {
                     miniPlayPause.setImageResource(isPlaying ? R.drawable.ic_pause_circle_24px : R.drawable.ic_play_circle_24px);
                 }
+                // Update minimized player visibility based on whether there's a current song
+                updateMinimizedPlayerVisibility();
             }
             
             @Override
@@ -153,35 +158,41 @@ public class HomeActivity extends AppCompatActivity implements fragment_now_play
                 if (miniSongTitle != null) miniSongTitle.setText(title);
                 // Load album art when metadata changes
                 loadMiniPlayerAlbumArt(miniAlbumArt);
+                // Update visibility when metadata changes (song starts/stops)
+                updateMinimizedPlayerVisibility();
             }
             
             @Override
             public void onSongCompleted() {
                 // Auto-next handled by PlaybackManager
+                // Visibility will be updated by onStateChanged or onMetadataChanged
             }
         };
         
-        vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get().addListener(miniPlayerListener);
+        PlaybackManager.get().addListener(miniPlayerListener);
         
         // Load initial album art
         loadMiniPlayerAlbumArt(miniAlbumArt);
         
         // Set initial icon state
         if (miniPlayPause != null) {
-            boolean isPlaying = vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get().isPlaying();
+            boolean isPlaying = PlaybackManager.get().isPlaying();
             miniPlayPause.setImageResource(isPlaying ? R.drawable.ic_pause_circle_24px : R.drawable.ic_play_circle_24px);
         }
+        
+        // Set initial visibility state
+        updateMinimizedPlayerVisibility();
         
         // Play/pause button
         if (miniPlayPause != null) {
             miniPlayPause.setOnClickListener(v -> {
-                vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get().togglePlayPause();
+                PlaybackManager.get().togglePlayPause();
             });
         }
         
         // Expand to full player when user taps anywhere on the minimized container
         minimizedPlayer.setOnClickListener(v -> {
-            vn.edu.tdtu.lhqc.meowsic.PlaybackManager pm = vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get();
+            PlaybackManager pm = PlaybackManager.get();
             String uriString = pm.getCurrentUri() != null ? pm.getCurrentUri().toString() : null;
             fragment_now_playing nowPlayingFragment = fragment_now_playing.newInstance(
                 pm.getCurrentTitle(), 
@@ -210,6 +221,7 @@ public class HomeActivity extends AppCompatActivity implements fragment_now_play
 
     @Override
     public void setFullscreenMode(boolean isFullscreen) {
+        this.isFullscreenMode = isFullscreen;
         View fragmentContainer = findViewById(R.id.fragment_container);
         if (bottomNavigation != null && fragmentContainer != null) {
             if (isFullscreen) {
@@ -227,11 +239,11 @@ public class HomeActivity extends AppCompatActivity implements fragment_now_play
                     fragmentContainer.setLayoutParams(params);
                 }
             } else {
-                // Show bottom navigation and minimized player for normal mode
+                // Show bottom navigation for normal mode
                 bottomNavigation.setVisibility(View.VISIBLE);
-                if (minimizedPlayer != null) {
-                    minimizedPlayer.setVisibility(View.VISIBLE);
-                }
+                
+                // Update minimized player visibility based on whether there's a current song
+                updateMinimizedPlayerVisibility();
                 
                 // Restore fragment container constraints to stop above minimized player
                 ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) fragmentContainer.getLayoutParams();
@@ -251,10 +263,75 @@ public class HomeActivity extends AppCompatActivity implements fragment_now_play
         // since PlaybackManager already notifies the miniPlayerListener when metadata changes
     }
     
+    /**
+     * Updates the minimized player visibility based on whether there's a current song playing
+     * and whether the user is in fullscreen mode (now playing)
+     */
+    private void updateMinimizedPlayerVisibility() {
+        if (minimizedPlayer == null) return;
+        
+        // Don't show minimized player if in fullscreen mode (now playing)
+        if (isFullscreenMode) {
+            hideMinimizedPlayer();
+            return;
+        }
+        
+        PlaybackManager pm = PlaybackManager.get();
+        boolean hasCurrentSong = pm.getCurrentUri() != null && 
+                                pm.getCurrentTitle() != null && 
+                                !pm.getCurrentTitle().isEmpty();
+        
+        if (hasCurrentSong) {
+            showMinimizedPlayer();
+        } else {
+            hideMinimizedPlayer();
+        }
+    }
+    
+    /**
+     * Shows the minimized player and updates layout constraints
+     */
+    private void showMinimizedPlayer() {
+        if (minimizedPlayer == null) return;
+        
+        minimizedPlayer.setVisibility(View.VISIBLE);
+        
+        // Update fragment container constraints to stop above minimized player
+        View fragmentContainer = findViewById(R.id.fragment_container);
+        if (fragmentContainer != null) {
+            ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) fragmentContainer.getLayoutParams();
+            if (params != null) {
+                params.bottomToTop = R.id.minimized_player;
+                params.bottomToBottom = ConstraintLayout.LayoutParams.UNSET;
+                fragmentContainer.setLayoutParams(params);
+            }
+        }
+    }
+    
+    /**
+     * Hides the minimized player and updates layout constraints
+     */
+    private void hideMinimizedPlayer() {
+        if (minimizedPlayer == null) return;
+        
+        minimizedPlayer.setVisibility(View.GONE);
+        
+        // Update fragment container constraints to extend to bottom navigation
+        View fragmentContainer = findViewById(R.id.fragment_container);
+        if (fragmentContainer != null) {
+            ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) fragmentContainer.getLayoutParams();
+            if (params != null) {
+                params.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
+                params.bottomToTop = ConstraintLayout.LayoutParams.UNSET;
+                fragmentContainer.setLayoutParams(params);
+            }
+        }
+    }
+    
     private void loadMiniPlayerAlbumArt(ImageView albumArtView) {
         if (albumArtView == null) return;
         
-        vn.edu.tdtu.lhqc.meowsic.PlaybackManager pm = vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get();
+        PlaybackManager pm = PlaybackManager.get();
         android.net.Uri currentUri = pm.getCurrentUri();
         
         if (currentUri == null) {
@@ -263,8 +340,8 @@ public class HomeActivity extends AppCompatActivity implements fragment_now_play
         }
         
         // Load album art from library
-        java.util.List<vn.edu.tdtu.lhqc.meowsic.Song> allSongs = vn.edu.tdtu.lhqc.meowsic.SongStore.load(this);
-        for (vn.edu.tdtu.lhqc.meowsic.Song song : allSongs) {
+        java.util.List<Song> allSongs = SongStore.load(this);
+        for (Song song : allSongs) {
             if (song.getUriString() != null && song.getUriString().equals(currentUri.toString())) {
                 if (song.hasAlbumArt()) {
                     try {

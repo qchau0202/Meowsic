@@ -1,4 +1,4 @@
-package vn.edu.tdtu.lhqc.meowsic;
+package vn.edu.tdtu.lhqc.meowsic.managers;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -8,6 +8,9 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import vn.edu.tdtu.lhqc.meowsic.R;
+import vn.edu.tdtu.lhqc.meowsic.models.Song;
 
 /**
  * Manages the playback queue for songs

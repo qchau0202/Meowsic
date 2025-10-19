@@ -13,9 +13,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import vn.edu.tdtu.lhqc.meowsic.R;
-import vn.edu.tdtu.lhqc.meowsic.Song;
-import vn.edu.tdtu.lhqc.meowsic.SongAdapter;
-import vn.edu.tdtu.lhqc.meowsic.RecentlyPlayedStore;
+import vn.edu.tdtu.lhqc.meowsic.managers.PlaybackManager;
+import vn.edu.tdtu.lhqc.meowsic.models.Song;
+import vn.edu.tdtu.lhqc.meowsic.adapters.SongAdapter;
+import vn.edu.tdtu.lhqc.meowsic.managers.RecentlyPlayedStore;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -231,7 +232,7 @@ public class fragment_home extends Fragment {
                     // Start playback via shared manager
                     try {
                         android.net.Uri uri = android.net.Uri.parse(song.getUriString());
-                        vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get().play(
+                        PlaybackManager.get().play(
                             requireContext(), uri, song.getTitle(), song.getArtist(), song.getAlbumArtBase64()
                         );
                     } catch (Exception ignored) {}

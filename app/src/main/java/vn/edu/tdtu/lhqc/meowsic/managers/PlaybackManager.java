@@ -1,4 +1,4 @@
-package vn.edu.tdtu.lhqc.meowsic;
+package vn.edu.tdtu.lhqc.meowsic.managers;
 
 import android.content.Context;
 import android.media.MediaPlayer;
@@ -8,6 +8,9 @@ import android.os.Looper;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import vn.edu.tdtu.lhqc.meowsic.R;
+import vn.edu.tdtu.lhqc.meowsic.models.Song;
 
 public final class PlaybackManager {
     public interface Listener {
@@ -278,6 +281,16 @@ public final class PlaybackManager {
             mediaPlayer = null;
         }
         handler.removeCallbacks(progressRunnable);
+        
+        // Clear current song metadata to signal no song is playing
+        currentTitle = "";
+        currentArtist = "";
+        currentAlbumArt = null;
+        currentUri = null;
+        
+        // Notify listeners that metadata changed (no song)
+        notifyMetadata();
+        notifyState();
     }
 }
 

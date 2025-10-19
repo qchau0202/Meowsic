@@ -22,12 +22,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 
 import vn.edu.tdtu.lhqc.meowsic.R;
-import vn.edu.tdtu.lhqc.meowsic.Song;
-import vn.edu.tdtu.lhqc.meowsic.SongAdapter;
-import vn.edu.tdtu.lhqc.meowsic.ui.PopupAddMenuHelper;
+import vn.edu.tdtu.lhqc.meowsic.managers.PlaybackManager;
+import vn.edu.tdtu.lhqc.meowsic.managers.PlaylistStore;
+import vn.edu.tdtu.lhqc.meowsic.managers.QueueManager;
+import vn.edu.tdtu.lhqc.meowsic.managers.RecentlyPlayedStore;
+import vn.edu.tdtu.lhqc.meowsic.managers.SongStore;
+import vn.edu.tdtu.lhqc.meowsic.models.Song;
+import vn.edu.tdtu.lhqc.meowsic.adapters.SongAdapter;
+import vn.edu.tdtu.lhqc.meowsic.utils.PopupAddMenuHelper;
+import vn.edu.tdtu.lhqc.meowsic.utils.SongImportUtil;
 
 public class fragment_library extends Fragment {
     
@@ -142,7 +147,7 @@ public class fragment_library extends Fragment {
                     requireContext().getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 } catch (Exception ignored) {}
                 // Extract metadata and add to list
-                Song s = vn.edu.tdtu.lhqc.meowsic.SongImportUtil.buildSongFromUri(requireContext(), uri);
+                Song s = SongImportUtil.buildSongFromUri(requireContext(), uri);
                 if (s != null) {
                     imported.add(s);
                     existingUris.add(uriString); // Add to set to avoid duplicates in current import batch
@@ -152,7 +157,7 @@ public class fragment_library extends Fragment {
             // Only persist and update UI if we have new songs
             if (!imported.isEmpty()) {
                 // Persist to simple local store
-                vn.edu.tdtu.lhqc.meowsic.SongStore.addAllAtTop(requireContext(), imported);
+                SongStore.addAllAtTop(requireContext(), imported);
                 if (songAdapter != null) {
                     // Add newest first
                     for (int i = imported.size() - 1; i >= 0; i--) {
@@ -307,7 +312,7 @@ public class fragment_library extends Fragment {
     
     private void setupRecyclerView() {
         // Load persisted songs so list survives navigation/app restarts
-        allLibraryData = new ArrayList<>(vn.edu.tdtu.lhqc.meowsic.SongStore.load(requireContext()));
+        allLibraryData = new ArrayList<>(SongStore.load(requireContext()));
 
         // Setup RecyclerView
         songAdapter = new SongAdapter(allLibraryData);
@@ -332,7 +337,7 @@ public class fragment_library extends Fragment {
                     // Start playback via shared manager so minimized player also reflects state
                     try {
                         android.net.Uri uri = android.net.Uri.parse(song.getUriString());
-                        vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get().play(requireContext(), uri, song.getTitle(), song.getArtist(), song.getAlbumArtBase64());
+                        PlaybackManager.get().play(requireContext(), uri, song.getTitle(), song.getArtist(), song.getAlbumArtBase64());
                     } catch (Exception ignored) {}
                     target = fragment_now_playing.newInstance(song.getTitle(), song.getArtist(), song.getUriString());
                 } else {
@@ -450,7 +455,7 @@ public class fragment_library extends Fragment {
             // Play the song
             try {
                 android.net.Uri uri = android.net.Uri.parse(clickedSong.getUriString());
-                vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get().play(
+                PlaybackManager.get().play(
                     requireContext(), 
                     uri, 
                     clickedSong.getTitle(), 
@@ -570,7 +575,7 @@ public class fragment_library extends Fragment {
             }
 
             // Check if currently playing song was removed
-            vn.edu.tdtu.lhqc.meowsic.PlaybackManager pm = vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get();
+            PlaybackManager pm = PlaybackManager.get();
             android.net.Uri currentUri = pm.getCurrentUri();
             if (currentUri != null && removedUris.contains(currentUri.toString())) {
                 // Stop playback if current song was removed
@@ -581,7 +586,7 @@ public class fragment_library extends Fragment {
             cleanupRecentlyPlayed(removedUris);
 
             // Update storage and UI
-            vn.edu.tdtu.lhqc.meowsic.SongStore.save(requireContext(), allLibraryData);
+            SongStore.save(requireContext(), allLibraryData);
             songAdapter.updateData(allLibraryData);
             updateEmptyState();
 
@@ -601,7 +606,7 @@ public class fragment_library extends Fragment {
 
     private void cleanupRecentlyPlayed(java.util.Set<String> removedUris) {
         if (removedUris.isEmpty()) return;
-        vn.edu.tdtu.lhqc.meowsic.RecentlyPlayedStore.removeSongs(requireContext(), removedUris);
+        RecentlyPlayedStore.removeSongs(requireContext(), removedUris);
     }
     
     private boolean allSongsArePlaylistsOnly() {
@@ -666,7 +671,7 @@ public class fragment_library extends Fragment {
                 allLibraryData.add(0, newPlaylist);
                 songAdapter.updateData(allLibraryData);
                 updateEmptyState();
-                vn.edu.tdtu.lhqc.meowsic.SongStore.addAtTop(requireContext(), newPlaylist);
+                SongStore.addAtTop(requireContext(), newPlaylist);
                 
                 // Thông báo
                 android.widget.Toast.makeText(requireContext(), 
@@ -723,8 +728,8 @@ public class fragment_library extends Fragment {
             optionPlayNext.setOnClickListener(v -> {
                 dialog.dismiss();
                 // Initialize QueueManager and add song
-                vn.edu.tdtu.lhqc.meowsic.QueueManager.getInstance(requireContext());
-                vn.edu.tdtu.lhqc.meowsic.QueueManager.addNext(song);
+                QueueManager.getInstance(requireContext());
+                QueueManager.addNext(song);
                 android.widget.Toast.makeText(requireContext(), 
                     "\"" + song.getTitle() + "\" will play next", 
                     android.widget.Toast.LENGTH_SHORT).show();
@@ -736,8 +741,8 @@ public class fragment_library extends Fragment {
             optionAddToQueue.setOnClickListener(v -> {
                 dialog.dismiss();
                 // Initialize QueueManager and add song
-                vn.edu.tdtu.lhqc.meowsic.QueueManager.getInstance(requireContext());
-                vn.edu.tdtu.lhqc.meowsic.QueueManager.addToQueue(song);
+                QueueManager.getInstance(requireContext());
+                QueueManager.addToQueue(song);
                 android.widget.Toast.makeText(requireContext(), 
                     "\"" + song.getTitle() + "\" added to queue", 
                     android.widget.Toast.LENGTH_SHORT).show();
@@ -771,7 +776,7 @@ public class fragment_library extends Fragment {
         TextView noPlaylistsText = dialog.findViewById(R.id.no_playlists_text);
 
         // Get all playlists
-        java.util.List<String> playlists = vn.edu.tdtu.lhqc.meowsic.PlaylistStore.getAllPlaylistNames(requireContext());
+        java.util.List<String> playlists = PlaylistStore.getAllPlaylistNames(requireContext());
 
         if (playlists.isEmpty()) {
             if (noPlaylistsText != null) {
@@ -807,7 +812,7 @@ public class fragment_library extends Fragment {
         if (song == null || playlistName == null) return;
         
         // Load existing songs in the playlist
-        java.util.List<Song> playlistSongs = vn.edu.tdtu.lhqc.meowsic.PlaylistStore.loadPlaylistSongs(requireContext(), playlistName);
+        java.util.List<Song> playlistSongs = PlaylistStore.loadPlaylistSongs(requireContext(), playlistName);
         
         // Check if song already exists in the playlist
         for (Song existingSong : playlistSongs) {
@@ -821,7 +826,7 @@ public class fragment_library extends Fragment {
         
         // Add song to playlist
         playlistSongs.add(song);
-        vn.edu.tdtu.lhqc.meowsic.PlaylistStore.savePlaylistSongs(requireContext(), playlistName, playlistSongs);
+        PlaylistStore.savePlaylistSongs(requireContext(), playlistName, playlistSongs);
         
         android.widget.Toast.makeText(requireContext(), 
             "Added to \"" + playlistName + "\"", 
@@ -851,7 +856,7 @@ public class fragment_library extends Fragment {
         }
         
         // Stop playback if the current song is being removed
-        vn.edu.tdtu.lhqc.meowsic.PlaybackManager playbackManager = vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get();
+        PlaybackManager playbackManager = PlaybackManager.get();
         if (playbackManager.isPlaying() && song.getUriString() != null) {
             android.net.Uri currentUri = playbackManager.getCurrentUri();
             if (currentUri != null && song.getUriString().equals(currentUri.toString())) {
@@ -863,7 +868,7 @@ public class fragment_library extends Fragment {
         allLibraryData.remove(song);
         songAdapter.updateData(allLibraryData);
         updateEmptyState();
-        vn.edu.tdtu.lhqc.meowsic.SongStore.save(requireContext(), allLibraryData);
+        SongStore.save(requireContext(), allLibraryData);
         
         // Clean up recently played
         cleanupRecentlyPlayed(urisToRemove);

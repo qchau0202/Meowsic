@@ -1,4 +1,4 @@
-package vn.edu.tdtu.lhqc.meowsic;
+package vn.edu.tdtu.lhqc.meowsic.adapters;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,12 +7,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import vn.edu.tdtu.lhqc.meowsic.R;
+import vn.edu.tdtu.lhqc.meowsic.models.Song;
 
 
 public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder> {

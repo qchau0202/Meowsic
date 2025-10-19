@@ -17,8 +17,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import vn.edu.tdtu.lhqc.meowsic.R;
-import vn.edu.tdtu.lhqc.meowsic.Song;
-import vn.edu.tdtu.lhqc.meowsic.QueueAdapter;
+import vn.edu.tdtu.lhqc.meowsic.managers.PlaybackManager;
+import vn.edu.tdtu.lhqc.meowsic.managers.QueueManager;
+import vn.edu.tdtu.lhqc.meowsic.managers.SongStore;
+import vn.edu.tdtu.lhqc.meowsic.models.Song;
+import vn.edu.tdtu.lhqc.meowsic.adapters.QueueAdapter;
 import android.widget.PopupMenu;
 
 public class QueueActivity extends AppCompatActivity {
@@ -30,7 +33,7 @@ public class QueueActivity extends AppCompatActivity {
     private ImageView albumArtView;
     private TextView titleView;
     private TextView emptyStateView;
-    private vn.edu.tdtu.lhqc.meowsic.PlaybackManager.Listener playbackListener;
+    private PlaybackManager.Listener playbackListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +52,7 @@ public class QueueActivity extends AppCompatActivity {
 
     private void initializeHeader() {
         // Get current playback info from PlaybackManager
-        vn.edu.tdtu.lhqc.meowsic.PlaybackManager pm = vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get();
+        PlaybackManager pm = PlaybackManager.get();
         
         // Initialize views
         albumArtView = findViewById(R.id.np_art);
@@ -116,14 +119,18 @@ public class QueueActivity extends AppCompatActivity {
             playPauseButton.setOnClickListener(v -> pm.togglePlayPause());
         }
         
-        if (back != null) back.setOnClickListener(v -> finish());
+        if (back != null) back.setOnClickListener(v -> {
+            finish();
+            // Add slide animation from top to bottom when going back
+            overridePendingTransition(R.anim.slide_down_from_top, R.anim.slide_up_to_bottom);
+        });
         
         // Update progress continuously and handle metadata changes
         setupPlaybackListener(current, total, progress);
     }
     
     private void setupPlaybackListener(TextView current, TextView total, SeekBar progress) {
-        playbackListener = new vn.edu.tdtu.lhqc.meowsic.PlaybackManager.Listener() {
+        playbackListener = new PlaybackManager.Listener() {
             @Override
             public void onStateChanged(boolean isPlaying) {
                 if (playPauseButton != null) {
@@ -155,7 +162,7 @@ public class QueueActivity extends AppCompatActivity {
                 // Song finished, next song will auto-play
             }
         };
-        vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get().addListener(playbackListener);
+        PlaybackManager.get().addListener(playbackListener);
     }
     
     private void refreshQueue() {
@@ -171,14 +178,14 @@ public class QueueActivity extends AppCompatActivity {
         queueSongs.clear();
         
         // Initialize QueueManager and get the queue
-        vn.edu.tdtu.lhqc.meowsic.QueueManager.getInstance(this);
-        List<Song> queueFromManager = vn.edu.tdtu.lhqc.meowsic.QueueManager.getQueue();
+        QueueManager.getInstance(this);
+        List<Song> queueFromManager = QueueManager.getQueue();
         
         // Get current playing song URI to exclude it
-        vn.edu.tdtu.lhqc.meowsic.PlaybackManager pm = vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get();
+        PlaybackManager pm = PlaybackManager.get();
         android.net.Uri currentUri = pm.getCurrentUri();
         String currentUriString = (currentUri != null) ? currentUri.toString() : null;
-        int currentQueueIndex = vn.edu.tdtu.lhqc.meowsic.QueueManager.getCurrentIndex();
+        int currentQueueIndex = QueueManager.getCurrentIndex();
         
         // Add all songs from queue except the currently playing one
         for (int i = 0; i < queueFromManager.size(); i++) {
@@ -193,10 +200,17 @@ public class QueueActivity extends AppCompatActivity {
     }
     
     @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        // Add slide animation from top to bottom when going back
+        overridePendingTransition(R.anim.slide_down_from_top, R.anim.slide_up_to_bottom);
+    }
+    
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         if (playbackListener != null) {
-            vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get().removeListener(playbackListener);
+            PlaybackManager.get().removeListener(playbackListener);
         }
     }
     
@@ -228,7 +242,7 @@ public class QueueActivity extends AppCompatActivity {
             String uri = s.getUriString();
             if (uri != null) {
                 try {
-                    vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get()
+                    PlaybackManager.get()
                         .play(this, android.net.Uri.parse(uri), s.getTitle(), s.getArtist(), s.getAlbumArtBase64());
                 } catch (Exception ignored) {}
             }
@@ -257,7 +271,7 @@ public class QueueActivity extends AppCompatActivity {
                     
                     // Remove from QueueManager
                     if (uriToRemove != null) {
-                        vn.edu.tdtu.lhqc.meowsic.QueueManager.removeSong(uriToRemove);
+                        QueueManager.removeSong(uriToRemove);
                     }
                     
                     updateEmptyState();
@@ -271,9 +285,9 @@ public class QueueActivity extends AppCompatActivity {
                     
                     // Remove from current position in QueueManager
                     if (uriToMove != null) {
-                        vn.edu.tdtu.lhqc.meowsic.QueueManager.removeSong(uriToMove);
+                        QueueManager.removeSong(uriToMove);
                         // Add to next position
-                        vn.edu.tdtu.lhqc.meowsic.QueueManager.addNext(songToMove);
+                        QueueManager.addNext(songToMove);
                     }
                     
                     // Refresh the UI
@@ -289,7 +303,7 @@ public class QueueActivity extends AppCompatActivity {
     private void loadCurrentSongAlbumArt() {
         if (albumArtView == null) return;
         
-        vn.edu.tdtu.lhqc.meowsic.PlaybackManager pm = vn.edu.tdtu.lhqc.meowsic.PlaybackManager.get();
+        PlaybackManager pm = PlaybackManager.get();
         android.net.Uri currentUri = pm.getCurrentUri();
         
         if (currentUri == null) {
@@ -298,7 +312,7 @@ public class QueueActivity extends AppCompatActivity {
         }
         
         // Load album art from library
-        List<Song> allSongs = vn.edu.tdtu.lhqc.meowsic.SongStore.load(this);
+        List<Song> allSongs = SongStore.load(this);
         for (Song song : allSongs) {
             if (song.getUriString() != null && song.getUriString().equals(currentUri.toString())) {
                 if (song.hasAlbumArt()) {
